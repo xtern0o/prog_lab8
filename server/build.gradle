@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(':common')
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+    implementation 'org.postgresql:postgresql:42.6.0'
+    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'commons-codec:commons-codec:1.12'
+}
