@@ -15,8 +15,12 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Person implements Validatable, Serializable {
+    private static final long serialVersionUID = 6476823748348364230L;
+
     private long height; //Значение поля должно быть больше 0
     private Country nationality; //Поле может быть null
+
+    public Person() {}
 
     public Person(long height, Country nationality) {
         this.height = height;

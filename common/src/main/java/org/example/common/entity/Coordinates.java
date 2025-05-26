@@ -15,8 +15,12 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Coordinates implements Validatable, Comparable<Coordinates>, Serializable {
+    private static final long serialVersionUID = 6476823748348364227L;
+
     private float x;
     private Integer y; //Значение поля должно быть больше -471, Поле не может быть null
+
+    public Coordinates() {}
 
     public Coordinates(float x, Integer y) {
         this.x = x;

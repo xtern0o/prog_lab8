@@ -8,8 +8,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +32,7 @@ import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MainViewController implements Initializable {
     @FXML private Label usernameLabel;
@@ -50,13 +55,24 @@ public class MainViewController implements Initializable {
     @FXML private TableColumn<Ticket, Country> person_nationalityColumn;
     @FXML private TableColumn<Ticket, String> owner_loginColumn;
 
+    @FXML private Canvas canvas;
+
+    @Getter
+    @Setter
+    private Image bgImage;
+
     private volatile ObservableList<Ticket> ticketsObserveCollection = FXCollections.observableArrayList();
 
     private Client client = ClientSingleton.getClient();
 
+
     @Getter
     @Setter
     private Runnable authCallback;
+
+    @Getter
+    @Setter
+    private Consumer<Ticket> editCallback;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -70,9 +86,29 @@ public class MainViewController implements Initializable {
         statusLabel.setText("");
         messageLabel.setText("");
 
+        bgImage = new Image(getClass().getResource("/gui/image/world.png").toExternalForm());
+
         initTableColumns();
 
         synchronizeCollection();
+
+        redrawCanvas();
+
+        System.out.println(bgImage.getUrl());
+
+        canvas.widthProperty().addListener(
+                (obs, oldval, newval) -> redrawCanvas()
+        );
+        canvas.heightProperty().addListener(
+                (obs, oldval, newval) -> redrawCanvas()
+        );
+    }
+
+    private void redrawCanvas() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.drawImage(bgImage, 0, 0, canvas.getWidth(), canvas.getHeight());
+
     }
 
     /**
@@ -97,13 +133,10 @@ public class MainViewController implements Initializable {
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
         owner_loginColumn.setCellValueFactory(new PropertyValueFactory<>("ownerLogin"));
 
-        // Для числовых типов с использованием соответствующих свойств и asObject()
 
-        // Для price (double)
         priceColumn.setCellValueFactory(cellData ->
                 new SimpleDoubleProperty(cellData.getValue().getPrice()).asObject());
 
-        // Для discount (Float)
         discountColumn.setCellValueFactory(
                 cellData -> new SimpleFloatProperty(
                         cellData.getValue().getDiscount()
@@ -143,6 +176,20 @@ public class MainViewController implements Initializable {
 
         tableView.setItems(ticketsObserveCollection);
 
+        tableView.setRowFactory(tableView -> {
+            TableRow<Ticket> row = new TableRow<Ticket>();
+            row.setOnMouseClicked(mouseEvent -> {
+                if (mouseEvent.getClickCount() == 2 && ! row.isEmpty()) {
+                    doubleClickEdit(row.getItem());
+                }
+            });
+            return row;
+        });
+
+    }
+
+    private void doubleClickEdit(Ticket ticket) {
+        editCallback.accept(ticket);
     }
 
     private void statusBarNotify(String code, String message) {
@@ -289,6 +336,7 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void addElement() {
+        editCallback.accept(null);
     }
 
     @FXML

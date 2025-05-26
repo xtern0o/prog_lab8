@@ -6,8 +6,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.client.gui.controllers.AuthViewController;
+import org.example.client.gui.controllers.EditViewController;
 import org.example.client.gui.controllers.MainViewController;
 import org.example.client.managers.AuthManager;
+import org.example.common.entity.Ticket;
 
 import java.io.IOException;
 
@@ -45,7 +47,8 @@ public class App extends Application {
             FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/gui/MainView.fxml"));
             Parent mainRoot = mainLoader.load();
             MainViewController mainViewController = mainLoader.getController();
-            mainViewController.setAuthCallback(this::runAuth); // TODO: actually logout
+            mainViewController.setAuthCallback(this::runAuth);
+            mainViewController.setEditCallback(this::runEdit);
 
             Scene mainScene = new Scene(mainRoot);
             currentStage.setScene(mainScene);
@@ -58,6 +61,27 @@ public class App extends Application {
         } catch (IOException ioException) {
             throw new RuntimeException(ioException);
         }
+    }
 
+    public void runEdit(Ticket ticket) {
+        try {
+            FXMLLoader editLoader = new FXMLLoader(getClass().getResource("/gui/EditView.fxml"));
+            Parent editRoot = editLoader.load();
+
+            EditViewController editViewController = editLoader.getController();
+            editViewController.setTicket(ticket);
+            editViewController.setMainCallback(this::runMain);
+
+            Scene editScene = new Scene(editRoot);
+            currentStage.setScene(editScene);
+            currentStage.setTitle("Объект билет");
+            currentStage.setMinHeight(700);
+            currentStage.setMinWidth(500);
+            currentStage.show();
+
+
+        } catch (IOException ioException) {
+            throw new RuntimeException(ioException);
+        }
     }
 }

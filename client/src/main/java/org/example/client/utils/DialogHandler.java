@@ -68,6 +68,14 @@ public class DialogHandler {
         alert.showAndWait();
     }
 
+    public static void errorAlert(String title, String headerText, String text) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setContentText(text);
+        alert.setHeaderText(headerText);
+        alert.showAndWait();
+    }
+
     public static Integer integerInputDialog(String title, String header, String promptText) {
         Dialog<Integer> dialog = new Dialog<>();
         dialog.setTitle(title);
