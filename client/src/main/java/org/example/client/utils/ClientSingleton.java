@@ -12,7 +12,7 @@ public class ClientSingleton {
             client = new Client(
                     ClientConfig.getInstance().getHost(),
                     ClientConfig.getInstance().getPort(),
-                    10,
+                    2,
                     200,
                     Main.consoleOutput,
                     false

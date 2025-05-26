@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 
@@ -18,36 +20,19 @@ import java.nio.channels.UnresolvedAddressException;
  * Класс клиента, отвечающий за общение с сервером
  */
 public class Client implements Closeable {
-    @Getter
-    private final int port;
-
-    @Getter
-    private final String host;
-
-    /**
-     * максимальное число попыток переподключений прежде чем эти попытки прекратятся...
-     */
+    @Getter private final int port;
+    @Getter private final String host;
     private final int maxReconnectionAttempts;
-
-    /**
-     * Задержка между переподключениями в мс
-     */
     private final int reconnectionDelay;
-
     private final Printable consoleOutput;
-
-    /**
-     * Флаг: true -> завершить работу клиента при неудаче попыток соединения с сервером;
-     * false -> не завершать работу
-     */
     private boolean exitIfUnsuccessfulConnection;
 
     private SocketChannel socketChannel;
-    private ObjectOutputStream serverWriter;
-    private ObjectInputStream serverReader;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
     private int currentReconnectionAttempt;
 
-    public static long TIMEOUT_MS = 5000;
+    public static final int TIMEOUT_MS = 5000;
 
     public Client(
             String host,
@@ -66,163 +51,194 @@ public class Client implements Closeable {
     }
 
     /**
-     * Метод для соединения с сервером
-     * @return true если удачно, false если анлак тотальный
+     * Метод для соединения с сервером, использует обычные сокеты вместо каналов
+     * @return true если подключение успешно, false в противном случае
      */
     public boolean connectToServer() {
         try {
+            closeConnection();
+
+            consoleOutput.println("Попытка подключения к серверу: " + host + ":" + port);
+
             socketChannel = SocketChannel.open();
             socketChannel.connect(new InetSocketAddress(host, port));
-            this.serverWriter = new ObjectOutputStream(socketChannel.socket().getOutputStream());
-            this.serverReader = new ObjectInputStream(socketChannel.socket().getInputStream());
+            socketChannel.socket().setSoTimeout(TIMEOUT_MS);
 
-            // заканчиваем соединение до таймаута
-            long startTime = System.currentTimeMillis();
-            while (!socketChannel.finishConnect()) {
-                if (System.currentTimeMillis() - startTime > TIMEOUT_MS) {
-                    this.currentReconnectionAttempt = 1;
-                    throw new RuntimeException("Timeout");
-                }
-                Thread.sleep(100);
-            }
+            outputStream = new ObjectOutputStream(socketChannel.socket().getOutputStream());
+            outputStream.flush();
 
-            consoleOutput.println("Подключение к серверу: " + host + ":" + port);
+            inputStream = new ObjectInputStream(socketChannel.socket().getInputStream());
+
+            consoleOutput.println("Подключение к серверу успешно установлено: " + host + ":" + port);
+            currentReconnectionAttempt = 0;
 
             return true;
 
-        } catch (IOException ioException) {
-            handleConnectionError(ioException);
-            return isConnected();
-        } catch (UnresolvedAddressException unresolvedAddressException) {
-            consoleOutput.printError("Некорректный адрес сервака");
+        } catch (SocketTimeoutException e) {
+            consoleOutput.printError("Время ожидания подключения - В С Ё: " + e.getMessage());
+            return handleConnectionFailure();
+
+        } catch (IOException e) {
+            consoleOutput.printError("Ошибка ввода/вывода при подключении: " + e.getMessage());
+            return handleConnectionFailure();
+
+        } catch (UnresolvedAddressException e) {
+            consoleOutput.printError("Неверный адрес сервера: " + e.getMessage());
             return false;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+
+        } catch (Exception e) {
+            consoleOutput.printError("Ватафак это че: " + e.getMessage());
+            e.printStackTrace();
+            return handleConnectionFailure();
         }
     }
 
     /**
-     * Метод для инициации переподключения в случае если подключение потеряно где то при выполнении
-     * @return true если подсоединились, false если нет
+     * Обрабатывает ошибку подключения и пытается переподключиться
+     */
+    private boolean handleConnectionFailure() {
+        currentReconnectionAttempt++;
+
+        if (currentReconnectionAttempt <= maxReconnectionAttempts) {
+            consoleOutput.println("Попытка переподключения " + currentReconnectionAttempt +
+                    " из " + maxReconnectionAttempts);
+
+            try {
+                closeConnection();
+                Thread.sleep(reconnectionDelay);
+                return connectToServer();
+
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                consoleOutput.printError("Прерывание во время ожидания переподключения");
+                return false;
+            }
+        } else {
+            if (exitIfUnsuccessfulConnection) {
+                consoleOutput.println("Не удалось подключиться к серверу после " +
+                        maxReconnectionAttempts + " попыток.");
+                if (exitIfUnsuccessfulConnection) {
+                    consoleOutput.println("Завершение работы");
+                    System.exit(-1);
+                }
+            }
+
+            currentReconnectionAttempt = 0;
+            consoleOutput.printError("Анлак не получилось подключиться к серверу после " + maxReconnectionAttempts + " попыток");
+            return false;
+        }
+    }
+
+    /**
+     * Проверяет подключение и при необходимости переподключается
      */
     private boolean ensureConnected() {
         if (isConnected()) return true;
-        if (currentReconnectionAttempt >= maxReconnectionAttempts) return false;
 
-        reconnect();
-
-        return isConnected();
+        consoleOutput.println("Соединение - В С Ё? Попытка переподключения...");
+        return connectToServer();
     }
 
     /**
-     * Отправка запроса на сервер...
-     * @param requestCommand реквест аа заеблся докать это все
-     * @return ответ в формте Response
+     * Отправка запроса на сервер
      */
     public Response send(RequestCommand requestCommand) {
-        if (requestCommand.isEmpty()) return new Response(ResponseStatus.COMMAND_ERROR, "Ответ пустой");
+        if (requestCommand == null || requestCommand.isEmpty()) {
+            return new Response(ResponseStatus.COMMAND_ERROR, "Пустой запрос");
+        }
 
-        if (!ensureConnected()) return new Response(ResponseStatus.SERVER_ERROR, "Не удалось подключиться к серверу");
+        if (!ensureConnected()) {
+            return new Response(ResponseStatus.SERVER_ERROR, "Не удалось подключиться к серверу");
+        }
+
         try {
-            if (!isConnected()) {
-                connectToServer();
-                if (!isConnected()) throw new IOException("Соединение не установлено");
+            consoleOutput.println("Запрос отправляется...");
+
+            outputStream.writeObject(requestCommand);
+            outputStream.flush();
+            consoleOutput.println("Запрос отправлен");
+
+            Object response = inputStream.readObject();
+
+            if (response instanceof Response) {
+                consoleOutput.println("Ответ получен!!");
+                return (Response) response;
+            } else {
+                consoleOutput.printError("Неверный тип ответа: " +
+                        (response != null ? response.getClass().getName() : "null"));
+                return new Response(ResponseStatus.SERVER_ERROR, "Неверный формат ответа");
+            }
+
+        } catch (IOException e) {
+            consoleOutput.printError("Ошибка соединения с сервером: " + e.getMessage());
+
+            if (connectToServer()) {
+                consoleOutput.println("Повторная отправка запроса после переподключения...");
                 return send(requestCommand);
             }
 
-            serverWriter.writeObject(requestCommand);
-            serverWriter.flush();
+            return new Response(ResponseStatus.SERVER_ERROR, "Анлак не подключается чет: " + e.getMessage());
 
-            // Чтение ответа
-            Thread.sleep(50);
+        } catch (ClassNotFoundException e) {
+            consoleOutput.printError("Ошибка десериализации: " + e.getMessage());
+            return new Response(ResponseStatus.SERVER_ERROR, "Ошибка десериализации ответа");
 
-            return (Response) serverReader.readObject();
-        } catch (IOException ioException) {
-            reconnect();
-            if (!isConnected()) return new Response(ResponseStatus.SERVER_ERROR, "Ошибка сервера: " + ioException.getMessage());
-            return send(requestCommand);
-        } catch (ClassNotFoundException classNotFoundException) {
-            return new Response(ResponseStatus.SERVER_ERROR, "Некорректный формат данных от сервера");
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (UnresolvedAddressException unresolvedAddressException) {
-            throw new RuntimeException("Неверный адрес сервака");
-        }
-    }
-
-
-    /**
-     * Сценарий для программы в случае ошибки подключения
-     * @param exception ошибка
-     */
-    private void handleConnectionError(Exception exception) {
-        consoleOutput.printError("Соединение НЕ установлено.");
-
-        // если неверный адрес то до свидания
-        if (exception instanceof UnresolvedAddressException) {
-            consoleOutput.printError("Некорректный адрес сервака");
-            currentReconnectionAttempt = maxReconnectionAttempts;
-            return;
-        }
-
-        reconnect();
-    }
-
-    /**
-     * Переподсоединение к серверу через делэй
-     */
-    private void reconnect() {
-        if (currentReconnectionAttempt < maxReconnectionAttempts) {
-            try {
-                currentReconnectionAttempt++;
-
-                close();
-                Thread.sleep(reconnectionDelay);
-                consoleOutput.println(String.format("Попытка: %d/%d. Задержка %d мс", currentReconnectionAttempt, maxReconnectionAttempts, reconnectionDelay));
-
-                connectToServer();
-
-                return;
-
-            } catch (InterruptedException interruptedIOException) {
-                consoleOutput.printError("Прерывание во время переподключения");
-            }
-        }
-        handleFailedReconnect();
-    }
-
-    /**
-     * Сценарий для программы в случае неудачного подключения по истечении <maxReconnectionAttempts> попыток
-     */
-    private void handleFailedReconnect() {
-        currentReconnectionAttempt = 0;
-        if (exitIfUnsuccessfulConnection) {
-            consoleOutput.println("Не удалось подключиться к серверу. Завершение работы");
-            System.exit(-1);
+        } catch (Exception e) {
+            consoleOutput.printError("чзх: " + e.getMessage());
+            e.printStackTrace();
+            return new Response(ResponseStatus.SERVER_ERROR, "Непредвиденная ошибка: " + e.getMessage());
         }
     }
 
     /**
-     * Закрытие ресурсов для завершения подключения
+     * Закрывает текущее соединение и освобождает ресурсы
      */
-    public void close() {
+    private void closeConnection() {
         try {
-            if (socketChannel != null && socketChannel.isOpen()) socketChannel.close();
-        } catch (IOException ioException) {
-            consoleOutput.printError("Ошибка закрытия ресурсов: " + ioException.getMessage());
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                }
+                outputStream = null;
+            }
+
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+                inputStream = null;
+            }
+
+            if (socketChannel != null) {
+                try {
+                    socketChannel.close();
+                } catch (IOException e) {
+                }
+                socketChannel = null;
+            }
+
+        } catch (Exception e) {
+            consoleOutput.printError("Ошибка при закрытии соединения: " + e.getMessage());
         }
     }
 
     /**
-     * Соединены или нет.
-     * @return ДА или НЕТ.
+     * Проверяем, активно ли соединение
      */
     public boolean isConnected() {
-        try {
-            Thread.sleep(50);
-            return socketChannel != null && socketChannel.isConnected();
-        } catch (InterruptedException interruptedException) {
-            throw new RuntimeException(interruptedException);
-        }
+        return socketChannel != null && socketChannel.isConnected() &&
+                !socketChannel.socket().isClosed() && outputStream != null &&
+                inputStream != null;
+    }
+
+    /**
+     * Закрываем клиент.
+     */
+    @Override
+    public void close() {
+        closeConnection();
+        consoleOutput.println("Клиент - В С Ё");
     }
 }

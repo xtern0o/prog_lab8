@@ -7,15 +7,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.example.client.Main;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.client.managers.AuthManager;
 import org.example.client.managers.Client;
-import org.example.client.utils.ClientConfig;
 import org.example.client.utils.ClientSingleton;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
@@ -24,29 +20,26 @@ import org.example.common.dtp.User;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class AuthViewController implements Initializable {
     @FXML private TabPane mainTab;
     @FXML private Tab loginTab;
     @FXML private Tab regTab;
     @FXML private Label statusBar;
-    @FXML private AnchorPane mainAnchor;
 
     @FXML private TextField loginInput;
     @FXML private PasswordField passwordInput;
     @FXML private Button authButton;
-    @FXML private Hyperlink registerLink;
 
     @FXML private TextField regLoginInput;
     @FXML private PasswordField regPasswordInput;
     @FXML private PasswordField regRepeatpasswordInput;
     @FXML private Button regButton;
 
-    //    private final Client client = new Client(ClientConfig.getInstance().getHost(), ClientConfig.getInstance().getPort(), 100, 10, Main.consoleOutput, false);
     private final Client client = ClientSingleton.getClient();
-
+    @Getter
+    @Setter
+    private Runnable callback;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -55,7 +48,7 @@ public class AuthViewController implements Initializable {
     }
 
     @FXML
-    private void loginButtonPressed(ActionEvent actionEvent) {
+    private void loginButtonPressed() {
         if (!User.validateLogin(loginInput.getText())) {
             statusBarNotify("Логин должен быть > 3 символов");
             return;
@@ -68,6 +61,7 @@ public class AuthViewController implements Initializable {
         authButton.setDisable(true);
         loginInput.setDisable(true);
         passwordInput.setDisable(true);
+        regTab.setDisable(true);
 
         User user = new User(loginInput.getText(), passwordInput.getText());
         RequestCommand requestCommand = new RequestCommand("ping", user);
@@ -80,9 +74,11 @@ public class AuthViewController implements Initializable {
                 authButton.setDisable(false);
                 loginInput.setDisable(false);
                 passwordInput.setDisable(false);
+                regTab.setDisable(false);
                 if (response.getResponseStatus().equals(ResponseStatus.OK)) {
                     AuthManager.setCurrentUser(user);
                     statusBarNotify("Вы успешно авторизованы как \"" + user.login() + "\"");
+                    this.callback.run();
                 }
                 else if (response.getResponseStatus().equals(ResponseStatus.LOGIN_UNLUCK)) {
                     statusBarNotify("Неверный логин или пароль");
@@ -92,10 +88,11 @@ public class AuthViewController implements Initializable {
                 }
             });
         }).start();
+
     }
 
     @FXML
-    private void registerButtonPressed(ActionEvent actionEvent) {
+    private void registerButtonPressed() {
         if (!User.validateLogin(regLoginInput.getText())) {
             statusBarNotify("Логин должен быть > 3 символов");
             return;
@@ -113,6 +110,7 @@ public class AuthViewController implements Initializable {
         regLoginInput.setDisable(true);
         regPasswordInput.setDisable(true);
         regRepeatpasswordInput.setDisable(true);
+        loginTab.setDisable(true);
 
         User user = new User(regLoginInput.getText(), regPasswordInput.getText());
         RequestCommand requestCommand = new RequestCommand("register", user);
@@ -126,9 +124,11 @@ public class AuthViewController implements Initializable {
                 regLoginInput.setDisable(false);
                 regPasswordInput.setDisable(false);
                 regRepeatpasswordInput.setDisable(false);
+                loginTab.setDisable(false);
                 if (response.getResponseStatus().equals(ResponseStatus.OK)) {
                     AuthManager.setCurrentUser(user);
                     statusBarNotify("Регистрация прошла успешно! Вы авторизованы как " + user.login());
+                    this.callback.run();
                 }
                 else {
                     statusBarNotify(response.getResponseStatus() + ": " + response.getMessage());
@@ -136,17 +136,15 @@ public class AuthViewController implements Initializable {
             });
         }).start();
 
-
-
     }
 
     @FXML
-    private void gotoRegister(ActionEvent actionEvent) {
+    private void gotoRegister() {
         mainTab.getSelectionModel().select(regTab);
     }
 
     @FXML
-    private void gotoLogin(ActionEvent actionEvent) {
+    private void gotoLogin() {
         mainTab.getSelectionModel().select(loginTab);
     }
 

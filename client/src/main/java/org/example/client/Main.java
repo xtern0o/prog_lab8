@@ -5,7 +5,7 @@ import org.example.client.cli.ConsoleInput;
 import org.example.client.cli.ConsoleOutput;
 import org.example.client.command.ClientCommand;
 import org.example.client.command.client_commands.*;
-import org.example.client.gui.AuthView;
+import org.example.client.gui.App;
 import org.example.client.managers.*;
 import org.example.client.utils.ClientConfig;
 import org.example.common.exceptions.ValidationError;
@@ -28,8 +28,6 @@ public class Main {
             consoleOutput.printError(validationError.getMessage());
         }
 
-        Client client = new Client(host, port, 100, 10, consoleOutput, false);
-
         ArrayList<ClientCommand> commands = new ArrayList<>(List.of(
                 new ExitCommand(),
                 new LoginCommand(consoleInput, consoleOutput),
@@ -41,6 +39,6 @@ public class Main {
         clientCommandManager.addCommands(commands);
 
 //        new RuntimeManager(consoleOutput, consoleInput, client, runnableScriptsManager, clientCommandManager).run();
-        Application.launch(AuthView.class, args);
+        Application.launch(App.class, args);
     }
 }

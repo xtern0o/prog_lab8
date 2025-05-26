@@ -7,14 +7,14 @@ import org.example.common.dtp.User;
  * Статик класс для хранения текущего пользователя клиента
  */
 public class AuthManager {
-    private static User currentUser;
+    private volatile static User currentUser;
 
     /**
      * Получить объект текущего пользователя;
      * null, если не авторизован
      * @return
      */
-    public static User getCurrentUser() {
+    public synchronized static User getCurrentUser() {
         return AuthManager.currentUser;
     }
 
@@ -23,7 +23,7 @@ public class AuthManager {
      * null, чтобы разлогиниться
      * @param newUser
      */
-    public static void setCurrentUser(User newUser) {
+    public synchronized static void setCurrentUser(User newUser) {
         AuthManager.currentUser = newUser;
     }
 }

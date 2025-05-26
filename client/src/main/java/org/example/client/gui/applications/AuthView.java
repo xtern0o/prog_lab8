@@ -1,16 +1,14 @@
-package org.example.client.gui;
+package org.example.client.gui.applications;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.client.managers.AuthManager;
 
 import java.io.IOException;
 
 public class AuthView extends Application {
-
     @Override
     public void start(Stage stage) {
         try {
