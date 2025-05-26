@@ -50,7 +50,7 @@ public enum ResponseStatus {
     LOGIN_UNLUCK,
 
     /**
-     * Для выполнения команды необходима авторизация
+     * Коллекуия пустая
      */
-    LOGIN_REQUIRED
+    COLLECTION_IS_EMPTY
 }

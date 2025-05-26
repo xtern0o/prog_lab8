@@ -1,6 +1,5 @@
 package org.example.client.gui.controllers;
 
-import com.fasterxml.jackson.datatype.jsr310.deser.key.ZoneIdKeyDeserializer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -9,10 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Duration;
 import lombok.Getter;
@@ -20,6 +16,7 @@ import lombok.Setter;
 import org.example.client.managers.AuthManager;
 import org.example.client.managers.Client;
 import org.example.client.utils.ClientSingleton;
+import org.example.client.utils.DialogHandler;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
@@ -30,8 +27,7 @@ import org.example.common.entity.TicketType;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class MainViewController implements Initializable {
     @FXML private Label usernameLabel;
@@ -75,7 +71,6 @@ public class MainViewController implements Initializable {
         messageLabel.setText("");
 
         initTableColumns();
-
 
         synchronizeCollection();
     }
@@ -148,7 +143,6 @@ public class MainViewController implements Initializable {
 
         tableView.setItems(ticketsObserveCollection);
 
-
     }
 
     private void statusBarNotify(String code, String message) {
@@ -188,6 +182,26 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void getInfo() {
+        new Thread(() -> {
+            RequestCommand requestCommand = new RequestCommand("info", AuthManager.getCurrentUser());
+            Response response = client.send(requestCommand);
+            if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                Platform.runLater(() -> {
+                    DialogHandler.commandResponseAlert(
+                            "Информация",
+                            "Информация о коллекции на сервере",
+                            response.getMessage()
+                    );
+                    statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
+
+                });
+            }
+            else {
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML
@@ -198,10 +212,51 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void showHistory() {
+        new Thread(() -> {
+            RequestCommand requestCommand = new RequestCommand("history", AuthManager.getCurrentUser());
+            Response response = client.send(requestCommand);
+            if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                Platform.runLater(() -> {
+                    DialogHandler.commandResponseAlert(
+                            "История",
+                            "5 последних команд",
+                            response.getMessage()
+                    );
+                    statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
+
+                });
+            }
+            else {
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }
+        }).start();
+
     }
 
     @FXML
     private void getHead() {
+        new Thread(() -> {
+            RequestCommand requestCommand = new RequestCommand("head", AuthManager.getCurrentUser());
+            Response response = client.send(requestCommand);
+            if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                Platform.runLater(() -> {
+                    DialogHandler.commandResponseAlert(
+                            "Первый элемент",
+                            "Первый эемент коллекции",
+                            response.getMessage()
+                    );
+                    statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
+
+                });
+            }
+            else {
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML
@@ -242,6 +297,68 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void processItemEdit() {
+    }
+
+    @FXML
+    private void removeHeadCommand() {
+        new Thread(() -> {
+            RequestCommand requestCommand = new RequestCommand("remove_head", AuthManager.getCurrentUser());
+            Response response = client.send(requestCommand);
+            if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                Platform.runLater(() -> {
+                    DialogHandler.commandResponseAlert(
+                            "Удаление элемента",
+                            "Результат выполнения удаления",
+                            response.getMessage()
+                    );
+                    synchronizeCollection();
+                    statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
+
+
+                });
+            }
+            else {
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }
+        }).start();
+    }
+
+    @FXML
+    private void clearMyItemsCommand() {
+        if (DialogHandler.confirmationDialog("Очистка коллекции", "Вы уверены, что хотите удалить все свои элементы в коллекции?")) {
+            new Thread(() -> {
+                RequestCommand requestCommand = new RequestCommand("clear", AuthManager.getCurrentUser());
+                Response response = client.send(requestCommand);
+                if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                    synchronizeCollection();
+                    Platform.runLater(() -> {
+                        DialogHandler.successAlert("Успешно", "Очистка коллекции", response.getMessage());
+                    });
+                }
+            }).start();
+        }
+    }
+
+    @FXML
+    private void deleteByIdCommand() {
+        try {
+            int id = DialogHandler.integerInputDialog("Удаление", "Удаление по id", "Введите id элемента");
+            new Thread(() -> {
+                RequestCommand requestCommand = new RequestCommand(
+                        "remove_by_id",
+                        new ArrayList<>(List.of(String.valueOf(id))),
+                        AuthManager.getCurrentUser()
+                );
+                Response response = client.send(requestCommand);
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }).start();
+        } catch (NullPointerException ignored) {
+        }
+
     }
 
 }

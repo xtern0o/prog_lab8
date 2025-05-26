@@ -76,9 +76,9 @@
                         </Button>
                         <MenuButton mnemonicParsing="false" text="Удалить...">
                           <items>
-                            <MenuItem fx:id="deleteById" mnemonicParsing="false" text="Элемент по Id" />
-                            <MenuItem fx:id="clearMyItems" mnemonicParsing="false" text="Все досутпные элемент" />
-                              <MenuItem fx:id="removeHead" mnemonicParsing="false" text="Первый в коллекции" />
+                            <MenuItem fx:id="deleteById" mnemonicParsing="false" onAction="#deleteByIdCommand" text="Элемент по Id" />
+                            <MenuItem fx:id="clearMyItems" mnemonicParsing="false" onAction="#clearMyItemsCommand" text="Все досутпные элемент" />
+                              <MenuItem fx:id="removeHead" mnemonicParsing="false" onAction="#removeHeadCommand" text="Первый в коллекции" />
                           </items>
                         </MenuButton>
                      </children>
