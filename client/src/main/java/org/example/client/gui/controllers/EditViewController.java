@@ -207,6 +207,11 @@ public class EditViewController implements Initializable {
             ticket.setOwnerLogin(AuthManager.getCurrentUser().login());
             creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
             ownerField.setText(AuthManager.getCurrentUser().login());
+            validControl.put(nameField, false);
+            validControl.put(priceField, false);
+            validControl.put(pHeightField, false);
+            validControl.put(xField, false);
+            validControl.put(yField, false);
 
         }
     }

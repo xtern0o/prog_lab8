@@ -88,6 +88,9 @@ public class MainViewController implements Initializable {
 
         bgImage = new Image(getClass().getResource("/gui/image/world.png").toExternalForm());
 
+        System.out.println(bgImage.isError());
+        System.out.println(getClass().getResource("/gui/image/world.png"));
+
         initTableColumns();
 
         synchronizeCollection();
@@ -109,6 +112,44 @@ public class MainViewController implements Initializable {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.drawImage(bgImage, 0, 0, canvas.getWidth(), canvas.getHeight());
 
+        if (ticketsObserveCollection.isEmpty()) return;
+
+        // 1. Найти min/max X/Y
+        float minX = Float.MAX_VALUE, maxX = -Float.MAX_VALUE;
+        int minY = Integer.MAX_VALUE, maxY = Integer.MIN_VALUE;
+
+        for (Ticket t : ticketsObserveCollection) {
+            if (t.getCoordinates() != null) {
+                float x = t.getCoordinates().getX();
+                int y = t.getCoordinates().getY();
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+        // Если только одна точка — чтобы не делить на 0:
+        if (minX == maxX) { minX -= 1; maxX += 1; }
+        if (minY == maxY) { minY -= 1; maxY += 1; }
+
+        // 2. Нарисовать каждый Ticket
+        for (Ticket t : ticketsObserveCollection) {
+            if (t.getCoordinates() != null) {
+                float x = t.getCoordinates().getX();
+                int y = t.getCoordinates().getY();
+
+                double canvasX = (x - minX) / (maxX - minX) * canvas.getWidth();
+                double canvasY = (y - minY) / (maxY - minY) * canvas.getHeight();
+
+                // Нарисовать кружочек (можно цвет выбирать по владельцу, id и т.д.)
+                gc.setFill(Color.BLUE);
+                gc.fillOval(canvasX - 7, canvasY - 7, 14, 14);
+
+                // Нарисовать id или имя
+                gc.setFill(Color.BLACK);
+                gc.fillText(String.valueOf(t.getId()), canvasX + 10, canvasY);
+            }
+        }
     }
 
     /**
@@ -122,7 +163,7 @@ public class MainViewController implements Initializable {
 
             tableView.refresh();
             statusBarNotify("OK", "Получена актуальная коллекция с сервера. Всего элементов: " + tickets.size());
-
+            redrawCanvas();
         });
     }
 
