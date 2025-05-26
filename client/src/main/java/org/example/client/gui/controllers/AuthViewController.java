@@ -139,13 +139,16 @@ public class AuthViewController implements Initializable {
     }
 
     @FXML
-    private void gotoRegister() {
+    private void gotoRegister(ActionEvent actionEvent) {
         mainTab.getSelectionModel().select(regTab);
     }
 
     @FXML
-    private void gotoLogin() {
+    private void gotoLogin(ActionEvent actionEvent) {
         mainTab.getSelectionModel().select(loginTab);
+        AuthManager.setCurrentUser(new User("123123", "123123"));
+        this.callback.run();
+        // DEBUG: TODO: debug
     }
 
     private boolean passwordAreSame() {

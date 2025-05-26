@@ -22,7 +22,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="1100.0" prefHeight="900.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.client.gui.controllers.MainViewController">
    <top>
       <VBox BorderPane.alignment="CENTER">
@@ -146,18 +145,18 @@
                            <children>
                               <TableView fx:id="tableView" editable="true" maxHeight="1.7976931348623157E308" minHeight="300.0" onInputMethodTextChanged="#processItemEdit" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                 <columns>
-                                  <TableColumn editable="false" minWidth="30.0" prefWidth="52.0" text="id" />
-                                  <TableColumn minWidth="60.0" prefWidth="121.0" text="name" />
-                                    <TableColumn minWidth="60.0" prefWidth="65.0" text="coord_x" />
-                                    <TableColumn minWidth="60.0" prefWidth="62.0" text="coord_y" />
-                                    <TableColumn editable="false" minWidth="100.0" prefWidth="136.0" text="creation_date" />
-                                    <TableColumn minWidth="60.0" prefWidth="74.0" text="price" />
-                                    <TableColumn minWidth="60.0" prefWidth="65.0" text="discount" />
-                                    <TableColumn minWidth="20.0" prefWidth="89.0" text="refundable" />
-                                    <TableColumn minWidth="80.0" text="type" />
-                                    <TableColumn minWidth="80.0" prefWidth="104.0" text="person_height" />
-                                    <TableColumn minWidth="120.0" prefWidth="139.0" text="person_nationality" />
-                                    <TableColumn editable="false" minWidth="150.0" prefWidth="173.0" text="owner_login" />
+                                  <TableColumn fx:id="idColumn" editable="false" minWidth="30.0" prefWidth="52.0" text="id" />
+                                  <TableColumn fx:id="nameColumn" minWidth="60.0" prefWidth="121.0" text="name" />
+                                    <TableColumn fx:id="coord_xColumn" minWidth="60.0" prefWidth="65.0" text="coord_x" />
+                                    <TableColumn fx:id="coord_yColumn" minWidth="60.0" prefWidth="62.0" text="coord_y" />
+                                    <TableColumn fx:id="creation_dateColumn" editable="false" minWidth="100.0" prefWidth="136.0" text="creation_date" />
+                                    <TableColumn fx:id="priceColumn" minWidth="60.0" prefWidth="74.0" text="price" />
+                                    <TableColumn fx:id="discountColumn" minWidth="60.0" prefWidth="65.0" text="discount" />
+                                    <TableColumn fx:id="refundableColumn" minWidth="20.0" prefWidth="89.0" text="refundable" />
+                                    <TableColumn fx:id="typeColumn" minWidth="80.0" text="type" />
+                                    <TableColumn fx:id="person_heightColumn" minWidth="80.0" prefWidth="104.0" text="person_height" />
+                                    <TableColumn fx:id="person_nationalityColumn" minWidth="120.0" prefWidth="139.0" text="person_nationality" />
+                                    <TableColumn fx:id="owner_loginColumn" editable="false" minWidth="150.0" prefWidth="173.0" text="owner_login" />
                                 </columns>
                               </TableView>
                            </children>
