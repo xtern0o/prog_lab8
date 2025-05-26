@@ -204,8 +204,10 @@ public class EditViewController implements Initializable {
         else {
             mode = EditMode.ADD;
             this.ticket = new Ticket();
+            ticket.setOwnerLogin(AuthManager.getCurrentUser().login());
             creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
             ownerField.setText(AuthManager.getCurrentUser().login());
+
         }
     }
 
@@ -301,7 +303,6 @@ public class EditViewController implements Initializable {
             evilActivate(yField);
         }
     }
-
 
 
 }

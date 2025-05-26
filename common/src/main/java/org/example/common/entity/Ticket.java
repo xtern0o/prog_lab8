@@ -45,6 +45,8 @@ public class Ticket implements Validatable, Comparable<Ticket>, Serializable {
     public Ticket() {
         this.coordinates = new Coordinates();
         this.person = new Person();
+        this.creationDate = ZonedDateTime.now();
+        this.id = 0;
     }
 
     public Ticket(String name, Coordinates coordinates, double price, Float discount, TicketType type, boolean refundable, Person person, String ownerLogin) {
