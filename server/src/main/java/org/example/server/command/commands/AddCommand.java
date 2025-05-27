@@ -5,12 +5,13 @@ import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
 import org.example.common.entity.Ticket;
 import org.example.common.exceptions.ValidationError;
+import org.example.server.command.CollectionModifyingCommand;
 import org.example.server.command.Command;
 import org.example.server.managers.CollectionManager;
 import org.example.server.managers.DatabaseManager;
 import org.example.server.utils.DatabaseSingleton;
 
-public class AddCommand extends Command {
+public class AddCommand extends Command implements CollectionModifyingCommand {
     public AddCommand() {
         super("add", "add {element} - добавить новый элемент в коллекцию");
     }

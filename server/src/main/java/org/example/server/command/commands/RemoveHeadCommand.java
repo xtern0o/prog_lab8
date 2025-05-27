@@ -4,6 +4,7 @@ import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
 import org.example.common.entity.Ticket;
+import org.example.server.command.CollectionModifyingCommand;
 import org.example.server.command.Command;
 import org.example.server.managers.CollectionManager;
 import org.example.server.managers.DatabaseManager;
@@ -16,7 +17,7 @@ import java.util.PriorityQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.stream.Collectors;
 
-public class RemoveHeadCommand extends Command {
+public class RemoveHeadCommand extends Command implements CollectionModifyingCommand {
     public RemoveHeadCommand() {
         super("remove_head", "выводит первый элемент коллекции и удаляет его");
     }

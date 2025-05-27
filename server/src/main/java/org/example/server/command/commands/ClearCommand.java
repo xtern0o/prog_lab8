@@ -3,6 +3,7 @@ package org.example.server.command.commands;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
+import org.example.server.command.CollectionModifyingCommand;
 import org.example.server.command.Command;
 import org.example.server.managers.CollectionManager;
 import org.example.server.managers.DatabaseManager;
@@ -11,7 +12,7 @@ import org.example.server.utils.DatabaseSingleton;
 /**
  * Класс команды clear
  */
-public class ClearCommand extends Command {
+public class ClearCommand extends Command implements CollectionModifyingCommand {
     public ClearCommand() {
         super("clear", "удплить все элементы коллекции принадлежащие пользователю");
     }

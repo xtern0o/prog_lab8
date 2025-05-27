@@ -3,12 +3,13 @@ package org.example.server.command.commands;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
+import org.example.server.command.CollectionModifyingCommand;
 import org.example.server.command.Command;
 import org.example.server.managers.CollectionManager;
 import org.example.server.managers.DatabaseManager;
 import org.example.server.utils.DatabaseSingleton;
 
-public class RemoveByIdCommand extends Command {
+public class RemoveByIdCommand extends Command implements CollectionModifyingCommand {
     public RemoveByIdCommand() {
         super("remove_by_id", "удаляет элемент из коллекции по его id");
     }
