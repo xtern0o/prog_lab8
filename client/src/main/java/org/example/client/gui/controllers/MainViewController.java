@@ -7,6 +7,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -65,6 +66,7 @@ public class MainViewController implements Initializable {
     @FXML private TableColumn<Ticket, Long> person_heightColumn;
     @FXML private TableColumn<Ticket, Country> person_nationalityColumn;
     @FXML private TableColumn<Ticket, String> owner_loginColumn;
+    @FXML private TextField startsWithInput;
 
     @FXML private Canvas canvas;
 
@@ -76,11 +78,15 @@ public class MainViewController implements Initializable {
     private final Map<RectCoords, Double> rectAlphaMap = new ConcurrentHashMap<>();
     private Timeline appearTimeline;
 
+    private String filterStartsWith;
+
     @Getter
     @Setter
     private Image bgImage;
 
     private volatile ObservableList<Ticket> ticketsObserveCollection = FXCollections.observableArrayList();
+    private FilteredList<Ticket> filteredTickets; // Добавьте это поле
+
 
     private Client client = ClientSingleton.getClient();
 
@@ -133,6 +139,26 @@ public class MainViewController implements Initializable {
                 }
             }
         });
+
+        // Для обмена коллекцией
+//        client.addCollectionUpdateListener((newCollection) -> {
+//            Platform.runLater(() -> {
+//                updateTableData(newCollection);
+//            });
+//        });
+//        client.startListeningForUpdates();
+
+        new Thread(() -> {
+            while (!Thread.interrupted()) {
+                synchronizeCollection();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException interruptedException) {
+                    break;
+                }
+            }
+
+        });
     }
 
     private static void drawGrid(GraphicsContext gc, double width, double height, double cellSize) {
@@ -156,12 +182,12 @@ public class MainViewController implements Initializable {
             GraphicsContext gc = canvas.getGraphicsContext2D();
             drawGrid(gc, canvas.getWidth(), canvas.getHeight(), 100);
 
-            if (ticketsObserveCollection.isEmpty()) return;
+            if (filteredTickets.isEmpty()) return;
 
             canvasCoordsMap.clear();
             Map<RectCoords, Ticket> newRects = new HashMap<>();
 
-            for (Ticket ticket : ticketsObserveCollection) {
+            for (Ticket ticket : filteredTickets) {
                 float canvas_x = Math.abs(ticket.getCoordinates().getX() % (float) canvas.getWidth());
                 int canvas_y = Math.abs(ticket.getCoordinates().getY() % (int) canvas.getHeight());
 
@@ -262,6 +288,8 @@ public class MainViewController implements Initializable {
             ticketsObserveCollection.clear();
             ticketsObserveCollection.addAll(newCollection);
 
+            filterStartsByNameFilter();
+
             tableView.refresh();
             if (redraw) redrawCanvas();
             statusBarNotify("OK", "Получена актуальная коллекция с сервера. Всего элементов: " + newCollection.size());
@@ -316,7 +344,9 @@ public class MainViewController implements Initializable {
                 )
         );
 
-        tableView.setItems(ticketsObserveCollection);
+//        tableView.setItems(ticketsObserveCollection);
+        filteredTickets = new FilteredList<>(ticketsObserveCollection, p -> true);
+        tableView.setItems(filteredTickets);
 
         tableView.setRowFactory(tableView -> {
             TableRow<Ticket> row = new TableRow<Ticket>() {
@@ -400,7 +430,7 @@ public class MainViewController implements Initializable {
         int i = 0;
         for (String user : users) {
             double hue = (double) i / n * 360;
-            Color color = Color.hsb(hue, 1.0, 1.0);
+            Color color = Color.hsb(hue, 0.9, 0.9);
             userToColor.put(user, color);
             i++;
             System.out.println(hue);
@@ -501,7 +531,7 @@ public class MainViewController implements Initializable {
             }
 
             highlightTimeline = new Timeline(new KeyFrame(
-                    Duration.seconds(3),
+                    Duration.seconds(1),
                     event -> {
                         highlightedTicketId = null;
                         tableView.refresh();
@@ -563,6 +593,17 @@ public class MainViewController implements Initializable {
 
     @FXML
     private void filterStartsByNameFilter() {
+        String filterText = startsWithInput.getText();
+        this.filterStartsWith = filterText;
+
+        if (filterText == null || filterText.isEmpty()) {
+            filteredTickets.setPredicate(ticket -> true);
+        } else {
+            filteredTickets.setPredicate(ticket ->
+                    ticket.getName().toLowerCase().startsWith(filterText.toLowerCase())
+            );
+        }
+        redrawCanvas();
     }
 
     @FXML

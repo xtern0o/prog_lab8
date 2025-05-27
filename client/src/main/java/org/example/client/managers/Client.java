@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
+import org.example.common.entity.Ticket;
 import org.example.common.utils.Printable;
 
 import java.io.Closeable;
@@ -15,6 +16,9 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Класс клиента, отвечающий за общение с сервером
@@ -31,6 +35,28 @@ public class Client implements Closeable {
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
     private int currentReconnectionAttempt;
+
+    /**
+     * Список слушателей которых надо уведомлять об изменении коллекции
+     */
+    private final CopyOnWriteArrayList<Consumer<Collection<Ticket>>> collectionUpdateListeners = new CopyOnWriteArrayList<>();
+
+    /**
+     * Добавить слушателя
+     * @param listener слушатель (функция с аргументом коллекции тикетов)
+     */
+    public void addCollectionUpdateListener(Consumer<Collection<Ticket>> listener) {
+        collectionUpdateListeners.add(listener);
+    }
+
+    /**
+     * Удалить слушателя
+     * @param listener слушатель
+     */
+    public void removeCollectionUpdateListener(Consumer<Collection<Ticket>> listener) {
+        collectionUpdateListeners.remove(listener);
+    }
+
 
     public static final int TIMEOUT_MS = 5000;
 
@@ -162,7 +188,11 @@ public class Client implements Closeable {
 
             if (response instanceof Response) {
                 consoleOutput.println("Ответ получен!!");
-                return (Response) response;
+                Response respObj = (Response) response;
+                if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
+                    handleCollectionUpdate(respObj);
+                }
+                return respObj;
             } else {
                 consoleOutput.printError("Неверный тип ответа: " +
                         (response != null ? response.getClass().getName() : "null"));
@@ -240,5 +270,43 @@ public class Client implements Closeable {
     public void close() {
         closeConnection();
         consoleOutput.println("Клиент - В С Ё");
+    }
+
+    /**
+     * Запуск слушателя обновлений коллекции в отдельном потоке
+     */
+    public void startListeningForUpdates() {
+        new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted() && isConnected()) {
+                try {
+                    Object response = inputStream.readObject();
+
+                    if (response instanceof Response) {
+                        Response respObj = (Response) response;
+
+                        if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
+                            handleCollectionUpdate(respObj);
+                        }
+                    }
+                } catch (SocketTimeoutException ignored) {
+                } catch (IOException | ClassNotFoundException e) {
+                    consoleOutput.printError("Ошибка при получении обновления: " + e.getMessage());
+
+                    if (ensureConnected()) {
+                        continue;
+                    } break;
+                }
+            }
+        }).start();
+    }
+
+    private void handleCollectionUpdate(Response response) {
+        for (Consumer<Collection<Ticket>> listener : collectionUpdateListeners) {
+            try {
+                listener.accept(response.getCollection());
+            } catch (Exception e) {
+                consoleOutput.printError("Ошибка отправки обновления слушателю");
+            }
+        }
     }
 }

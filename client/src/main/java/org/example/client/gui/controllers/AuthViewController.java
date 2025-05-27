@@ -19,6 +19,7 @@ import org.example.common.dtp.ResponseStatus;
 import org.example.common.dtp.User;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class AuthViewController implements Initializable {
@@ -146,9 +147,6 @@ public class AuthViewController implements Initializable {
     @FXML
     private void gotoLogin(ActionEvent actionEvent) {
         mainTab.getSelectionModel().select(loginTab);
-        AuthManager.setCurrentUser(new User("123123", "123123"));
-        this.callback.run();
-        // DEBUG: TODO: debug
     }
 
     private boolean passwordAreSame() {
@@ -164,6 +162,10 @@ public class AuthViewController implements Initializable {
         ));
         timeline.setCycleCount(1);
         timeline.play();
+    }
+
+    private void updateTextByLocale() {
+
     }
 
 }

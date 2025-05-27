@@ -116,7 +116,7 @@
                               <Insets right="5.0" />
                            </padding>
                         </Label>
-                        <TextField minWidth="200.0" onInputMethodTextChanged="#filterStartsByNameFilter" promptText="Начинается с..." />
+                        <TextField fx:id="startsWithInput" minWidth="200.0" onKeyReleased="#filterStartsByNameFilter" promptText="Начинается с..." />
                      </children>
                      <padding>
                         <Insets left="5.0" right="5.0" />

@@ -50,7 +50,7 @@ public enum ResponseStatus {
     LOGIN_UNLUCK,
 
     /**
-     * Коллекуия пустая
+     * Обновление коллекции
      */
-    COLLECTION_IS_EMPTY
+    COLLECTION_UPDATE
 }

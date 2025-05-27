@@ -43,7 +43,7 @@
                                           </ImageView>
                                        </children>
                                     </HBox>
-                                    <Label fx:id="authLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Авторизация" textAlignment="CENTER">
+                                    <Label fx:id="authLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" userData="Auth" text="Авторизация" textAlignment="CENTER">
                                        <VBox.margin>
                                           <Insets top="10.0" />
                                        </VBox.margin>
@@ -74,7 +74,7 @@
                                                 <Font size="14.0" />
                                              </font>
                                           </TextField>
-                                          <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" text="Пароль" GridPane.rowIndex="1">
+                                          <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" userData="Password" text="Пароль" GridPane.rowIndex="1">
                                              <font>
                                                 <Font size="14.0" />
                                              </font>
@@ -82,7 +82,7 @@
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                              </GridPane.margin>
                                           </Label>
-                                          <PasswordField fx:id="passwordInput" promptText="Введите пароль" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <PasswordField fx:id="passwordInput" userData="RepeatPass" promptText="Введите пароль" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                              <font>
                                                 <Font size="14.0" />
                                              </font>
@@ -92,7 +92,7 @@
                                           <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                        </padding>
                                     </GridPane>
-                                    <Button fx:id="authButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loginButtonPressed" text="Авторизоваться" />
+                                    <Button fx:id="authButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#loginButtonPressed" userData="Auth" text="Авторизоваться" />
                                     <HBox alignment="CENTER" maxHeight="-Infinity" prefWidth="200.0">
                                        <VBox.margin>
                                           <Insets top="10.0" />
@@ -103,7 +103,7 @@
                                                 <Font size="14.0" />
                                              </font>
                                           </Label>
-                                          <Hyperlink fx:id="registerLink" onAction="#gotoRegister" text="Зарегистрироваться">
+                                          <Hyperlink fx:id="registerLink" onAction="#gotoRegister" userData="Reg" text="Зарегистрироваться">
                                              <HBox.margin>
                                                 <Insets left="5.0" />
                                              </HBox.margin>
@@ -119,7 +119,7 @@
                         </AnchorPane>
                   </content>
                 </Tab>
-                <Tab fx:id="regTab" text="Регистрация">
+                <Tab fx:id="regTab" userData="Reg" text="Регистрация">
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
@@ -139,7 +139,7 @@
                                                 </ImageView>
                                              </children>
                                           </HBox>
-                                          <Label fx:id="authLabel1" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Регистрация" textAlignment="CENTER">
+                                          <Label fx:id="authLabel1" alignment="CENTER" maxWidth="1.7976931348623157E308" userData="Reg" text="Регистрация" textAlignment="CENTER">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
@@ -158,7 +158,7 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
                                              </rowConstraints>
                                              <children>
-                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="Логин">
+                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" userData="Login" text="Логин">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
@@ -166,12 +166,12 @@
                                                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                    </GridPane.margin>
                                                 </Label>
-                                                <TextField fx:id="regLoginInput" promptText="Введите логин" GridPane.columnIndex="1">
+                                                <TextField fx:id="regLoginInput" userData="EnterLogin" promptText="Введите логин" GridPane.columnIndex="1">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
                                                 </TextField>
-                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" text="Пароль" GridPane.rowIndex="1">
+                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" userData="Password" text="Пароль" GridPane.rowIndex="1">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
@@ -179,12 +179,12 @@
                                                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                    </GridPane.margin>
                                                 </Label>
-                                                <PasswordField fx:id="regPasswordInput" promptText="Введите пароль" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <PasswordField fx:id="regPasswordInput" userData="EnterPass" promptText="Введите пароль" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
                                                 </PasswordField>
-                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" text="Повторите пароль" GridPane.rowIndex="2">
+                                                <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefWidth="530.0" userData="RepeatPass" text="Повторите пароль" GridPane.rowIndex="2">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
@@ -192,7 +192,7 @@
                                                       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                                    </GridPane.margin>
                                                 </Label>
-                                                <PasswordField fx:id="regRepeatpasswordInput" promptText="Повторите пароль" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                <PasswordField fx:id="regRepeatpasswordInput" userData="RepeatPass" promptText="Повторите пароль" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                                    <font>
                                                       <Font size="14.0" />
                                                    </font>
@@ -202,7 +202,7 @@
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                              </padding>
                                           </GridPane>
-                                          <Button fx:id="regButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#registerButtonPressed" text="Зарегистрироваться" />
+                                          <Button fx:id="regButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#registerButtonPressed" userData="DoReg" text="Зарегистрироваться" />
                                           <HBox alignment="CENTER" maxHeight="-Infinity" prefWidth="200.0">
                                              <VBox.margin>
                                                 <Insets top="10.0" />
@@ -213,7 +213,7 @@
                                                       <Font size="14.0" />
                                                    </font>
                                                 </Label>
-                                                <Hyperlink fx:id="loginLink" onAction="#gotoLogin" text="Авторизоваться">
+                                                <Hyperlink fx:id="loginLink" onAction="#gotoLogin" userData="DoAuth" text="Авторизоваться">
                                                    <HBox.margin>
                                                       <Insets left="5.0" />
                                                    </HBox.margin>

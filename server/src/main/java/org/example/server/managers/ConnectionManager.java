@@ -41,6 +41,8 @@ public class ConnectionManager implements Runnable {
             ObjectInputStream clientReader = new ObjectInputStream(clientChannel.socket().getInputStream());
             ObjectOutputStream clientWriter = new ObjectOutputStream(clientChannel.socket().getOutputStream());
 
+            ClientRegistry.registerClient(clientChannel, clientWriter);
+
             while (true) {
                 requestCommand = (RequestCommand) clientReader.readObject();
                 logger.info(
@@ -65,6 +67,13 @@ public class ConnectionManager implements Runnable {
             logger.warn("Неудача при десериализации: {}", e.getMessage());
         } catch (ClassNotFoundException e) {
             logger.warn("Не удалось корректо десериализовать: {}", e.getMessage());
+        } finally {
+            ClientRegistry.unregisterClient(clientChannel);
+            try {
+                if (clientChannel != null) clientChannel.close();
+            } catch (IOException ioException) {
+                logger.warn("ошибка при закрытии клиента: {}", ioException.getMessage());
+            }
         }
     }
 
