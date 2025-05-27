@@ -74,12 +74,14 @@ public class RequestCommandHandler implements Callable<List<ConnectionPool>> {
                     !newCollection.containsAll(oldCollection);
             logger.info("Content changed: {}", contentChanged);
 
-            if (contentChanged) {
+            if (!contentChanged) {
                 return new ArrayList<>(List.of(new ConnectionPool(
                         response,
                         objectOutputStream
                 )));
             }
+
+            if (oldCollection.equals(newCollection))
 
             return new ArrayList<>(List.of(new ConnectionPool(
                     response,
