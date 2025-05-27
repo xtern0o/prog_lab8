@@ -7,6 +7,7 @@ import org.example.client.command.ClientCommand;
 import org.example.client.command.client_commands.*;
 import org.example.client.gui.App;
 import org.example.client.managers.*;
+import org.example.client.utils.AppLocale;
 import org.example.client.utils.ClientConfig;
 import org.example.common.exceptions.ValidationError;
 

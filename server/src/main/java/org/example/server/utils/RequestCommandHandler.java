@@ -65,10 +65,6 @@ public class RequestCommandHandler implements Callable<List<ConnectionPool>> {
             Response response = commandManager.execute(requestCommand);
             PriorityBlockingQueue<Ticket> newCollection = new PriorityBlockingQueue<>(CollectionManager.getCollection());
 
-            logger.info("Old collection hash: {}, size: {}", oldCollection.hashCode(), oldCollection.size());
-            logger.info("New collection hash: {}, size: {}", newCollection.hashCode(), newCollection.size());
-            logger.info("Collections equal: {}", oldCollection.equals(newCollection));
-
             boolean contentChanged = oldCollection.size() != newCollection.size() ||
                     !oldCollection.containsAll(newCollection) ||
                     !newCollection.containsAll(oldCollection);

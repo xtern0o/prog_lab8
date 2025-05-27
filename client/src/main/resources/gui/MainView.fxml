@@ -28,15 +28,15 @@
          <children>
             <MenuBar>
               <menus>
-                <Menu mnemonicParsing="false" text="Файл">
+                <Menu fx:id="fileMenu" mnemonicParsing="false" userData="FileMenu" text="Файл">
                   <items>
                     <MenuItem fx:id="updateColelctionButton" mnemonicParsing="false" onAction="#synchronizeCollection" userData="UpdateCollection" text="Обновить коллекцию" />
-                        <MenuItem fx:id="serverInfoButton" mnemonicParsing="false" onAction="#getInfo" text="Информация о сервере" />
+                        <MenuItem fx:id="serverInfoButton" mnemonicParsing="false" onAction="#getInfo" userData="CollectionInfo" text="Информация о сервере" />
                         <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem fx:id="logoutButton" mnemonicParsing="false" onAction="#logout" text="Выйти из аккаунта" />
+                        <MenuItem fx:id="logoutButton" mnemonicParsing="false" onAction="#logout" userData="Logout" text="Выйти из аккаунта" />
                   </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Команды">
+                <Menu fx:id="commandsMenu" mnemonicParsing="false" userData="CommandsMenu" text="Команды">
                   <items>
                         <MenuItem fx:id="infoCommand" mnemonicParsing="false" onAction="#getInfo" text="info" />
                         <MenuItem fx:id="historyCommand" mnemonicParsing="false" onAction="#showHistory" text="history" />
@@ -45,18 +45,18 @@
                     <MenuItem fx:id="executeScript" mnemonicParsing="false" onAction="#executeScriptCommand" text="execute_script" />
                   </items>
                 </Menu>
-                  <Menu mnemonicParsing="false" text="Параметры">
+                  <Menu fx:id="paramsMenu" mnemonicParsing="false" userData="ParamsMenu" text="Параметры">
                     <items>
-                        <Menu mnemonicParsing="false" text="Язык">
+                        <Menu mnemonicParsing="false" userData="LangMenu" text="Язык">
                            <items>
-                              <RadioMenuItem fx:id="ru" mnemonicParsing="false" onAction="#setRuLang" text="Русский">
+                              <RadioMenuItem fx:id="ru" mnemonicParsing="false" onAction="#setRuLang" userData="LangRu" text="ru_RU">
                                  <toggleGroup>
                                     <ToggleGroup fx:id="langMenuGroup" />
                                  </toggleGroup>
                               </RadioMenuItem>
-                              <RadioMenuItem fx:id="cz" mnemonicParsing="false" onAction="#setCzLang" text="Чешский" toggleGroup="$langMenuGroup" />
-                              <RadioMenuItem fx:id="bg" mnemonicParsing="false" onAction="#setBgLang" text="Болгарский" toggleGroup="$langMenuGroup" />
-                              <RadioMenuItem fx:id="esgv" mnemonicParsing="false" onAction="#setEsgvLang" text="Испанский (Гватемала)" toggleGroup="$langMenuGroup" />
+                              <RadioMenuItem fx:id="cz" mnemonicParsing="false" onAction="#setCzLang" userData="LangCz" text="cs_CZ" toggleGroup="$langMenuGroup" />
+                              <RadioMenuItem fx:id="bg" mnemonicParsing="false" onAction="#setBgLang" userData="LangBg" text="bg_BG" toggleGroup="$langMenuGroup" />
+                              <RadioMenuItem fx:id="esgt" mnemonicParsing="false" onAction="#setEsgtLang" userData="LangEsGt" text="es_GT" toggleGroup="$langMenuGroup" />
                            </items>
                         </Menu>
                     </items>
@@ -67,23 +67,23 @@
               <items>
                   <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
-                      <Button fx:id="addElementButton" alignment="CENTER" mnemonicParsing="false" onAction="#addElement" text="Добавить элемент">
+                      <Button fx:id="addElementButton" alignment="CENTER" mnemonicParsing="false" onAction="#addElement" userData="AddElement" text="Добавить элемент">
                            <HBox.margin>
                               <Insets left="5.0" right="5.0" />
                            </HBox.margin>
                         </Button>
-                        <MenuButton mnemonicParsing="false" text="Удалить...">
+                        <MenuButton mnemonicParsing="false" fx:id="deleteMenu" userData="delete" text="Удалить...">
                           <items>
-                            <MenuItem fx:id="deleteById" mnemonicParsing="false" onAction="#deleteByIdCommand" text="Элемент по Id" />
-                            <MenuItem fx:id="clearMyItems" mnemonicParsing="false" onAction="#clearMyItemsCommand" text="Все досутпные элементы" />
-                              <MenuItem fx:id="removeHead" mnemonicParsing="false" onAction="#removeHeadCommand" text="Первый в коллекции" />
+                            <MenuItem fx:id="deleteById" mnemonicParsing="false" onAction="#deleteByIdCommand" userData="DeleteById" text="Элемент по Id" />
+                            <MenuItem fx:id="clearMyItems" mnemonicParsing="false" onAction="#clearMyItemsCommand" userData="ClearMyItems" text="Все досутпные элементы" />
+                              <MenuItem fx:id="removeHead" mnemonicParsing="false" onAction="#removeHeadCommand" userData="RemoveHead" text="Первый в коллекции" />
                           </items>
                         </MenuButton>
                      </children>
                   </HBox>
                   <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308">
                      <children>
-                        <Label text="Текущий пользователь">
+                        <Label userData="CurrentUser" fx:id="currentUser" text="Текущий пользователь">
                            <padding>
                               <Insets left="5.0" right="5.0" />
                            </padding>
@@ -111,12 +111,12 @@
                   <Button fx:id="head" mnemonicParsing="false" onAction="#getHead" text="head" />
                   <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
-                        <Label text="Фильтр по имени:">
+                        <Label userData="NameFilterLabel" fx:id="nameFilter" text="Фильтр по имени:">
                            <padding>
                               <Insets right="5.0" />
                            </padding>
                         </Label>
-                        <TextField fx:id="startsWithInput" minWidth="200.0" onKeyReleased="#filterStartsByNameFilter" promptText="Начинается с..." />
+                        <TextField fx:id="startsWithInput" minWidth="200.0" onKeyReleased="#filterStartsByNameFilter" userData="NameFilterPrompt" promptText="Начинается с..." />
                      </children>
                      <padding>
                         <Insets left="5.0" right="5.0" />
@@ -177,7 +177,7 @@
          <children>
             <HBox>
                <children>
-                  <Label fx:id="statusLabel" text="Статус:">
+                  <Label fx:id="statusLabel" userData="Status" text="Статус:">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>
@@ -197,7 +197,7 @@
             </HBox>
             <HBox>
                <children>
-                  <Label fx:id="messageLabel" text="Сообщение:">
+                  <Label fx:id="messageLabel" userData="Message" text="Сообщение:">
                      <font>
                         <Font name="System Bold" size="14.0" />
                      </font>

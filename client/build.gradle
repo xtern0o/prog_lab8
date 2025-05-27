@@ -10,3 +10,24 @@ javafx {
 dependencies {
     implementation project(':common')
 }
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs '-Dfile.encoding=UTF-8'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE  // или EXCLUDE, или WARN
+
+    from('src/main/resources') {
+        include '**/*.properties'
+        include '**/*.fxml'
+        include '**/*.css'
+        include '**/*.png'
+        include '**/*.jpg'
+        include '**/*.jpeg'
+    }
+}

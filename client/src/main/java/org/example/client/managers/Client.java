@@ -184,20 +184,29 @@ public class Client implements Closeable {
             outputStream.flush();
             consoleOutput.println("Запрос отправлен");
 
-            Object response = inputStream.readObject();
+            Response finalResp = null;
 
-            if (response instanceof Response) {
-                consoleOutput.println("Ответ получен!!");
-                Response respObj = (Response) response;
-                if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
-                    handleCollectionUpdate(respObj);
+            while (true) {
+                Object response = inputStream.readObject();
+
+                if (response instanceof Response) {
+                    consoleOutput.println("Ответ получен!!");
+                    Response respObj = (Response) response;
+                    if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
+                        handleCollectionUpdate(respObj);
+                    } else {
+                        finalResp = respObj;
+                        break;
+                    }
+                } else {
+                    consoleOutput.printError("Неверный тип ответа: " +
+                            (response != null ? response.getClass().getName() : "null"));
+                    return new Response(ResponseStatus.SERVER_ERROR, "Неверный формат ответа");
                 }
-                return respObj;
-            } else {
-                consoleOutput.printError("Неверный тип ответа: " +
-                        (response != null ? response.getClass().getName() : "null"));
-                return new Response(ResponseStatus.SERVER_ERROR, "Неверный формат ответа");
             }
+
+            return finalResp;
+
 
         } catch (IOException e) {
             consoleOutput.printError("Ошибка соединения с сервером: " + e.getMessage());
@@ -270,34 +279,6 @@ public class Client implements Closeable {
     public void close() {
         closeConnection();
         consoleOutput.println("Клиент - В С Ё");
-    }
-
-    /**
-     * Запуск слушателя обновлений коллекции в отдельном потоке
-     */
-    public void startListeningForUpdates() {
-        new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted() && isConnected()) {
-                try {
-                    Object response = inputStream.readObject();
-
-                    if (response instanceof Response) {
-                        Response respObj = (Response) response;
-
-                        if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
-                            handleCollectionUpdate(respObj);
-                        }
-                    }
-                } catch (SocketTimeoutException ignored) {
-                } catch (IOException | ClassNotFoundException e) {
-                    consoleOutput.printError("Ошибка при получении обновления: " + e.getMessage());
-
-                    if (ensureConnected()) {
-                        continue;
-                    } break;
-                }
-            }
-        }).start();
     }
 
     private void handleCollectionUpdate(Response response) {

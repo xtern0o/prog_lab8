@@ -3,6 +3,7 @@ package org.example.common.entity;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -103,5 +104,17 @@ public class Ticket implements Validatable, Comparable<Ticket>, Serializable {
     @Override
     public int compareTo(Ticket ticket) {
         return this.coordinates.compareTo(ticket.coordinates);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Ticket ticket = (Ticket) o;
+        return Double.compare(price, ticket.price) == 0 && refundable == ticket.refundable && Objects.equals(id, ticket.id) && Objects.equals(name, ticket.name) && Objects.equals(coordinates, ticket.coordinates) && Objects.equals(creationDate, ticket.creationDate) && Objects.equals(discount, ticket.discount) && type == ticket.type && Objects.equals(person, ticket.person) && Objects.equals(ownerLogin, ticket.ownerLogin);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, coordinates, creationDate, price, discount, refundable, type, person, ownerLogin);
     }
 }

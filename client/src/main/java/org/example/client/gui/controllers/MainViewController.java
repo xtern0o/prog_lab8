@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableArray;
+import javafx.collections.ObservableArrayBase;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.EventHandler;
@@ -25,6 +26,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.client.managers.AuthManager;
 import org.example.client.managers.Client;
+import org.example.client.utils.AppLocale;
 import org.example.client.utils.ClientSingleton;
 import org.example.client.utils.DialogHandler;
 import org.example.client.utils.RectCoords;
@@ -47,11 +49,30 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class MainViewController implements Initializable {
+    @FXML public MenuItem deleteById;
+    @FXML public MenuItem clearMyItems;
+    @FXML public MenuItem removeHead;
+    @FXML MenuButton deleteMenu;
+    @FXML MenuItem updateColelctionButton;
+    @FXML MenuItem serverInfoButton;
+    @FXML MenuItem logoutButton;
     @FXML private Label usernameLabel;
     @FXML private Label statusCodeBar;
     @FXML private Label statusMessage;
     @FXML private Label statusLabel;
     @FXML private Label messageLabel;
+    @FXML private Label currentUser;
+    @FXML private Label nameFilter;
+    @FXML private Menu paramsMenu;
+    @FXML private Menu commandsMenu;
+    @FXML private Menu fileMenu;
+    @FXML private Button addElementButton;
+
+
+    @FXML private RadioMenuItem ru;
+    @FXML private RadioMenuItem cz;
+    @FXML private RadioMenuItem bg;
+    @FXML private RadioMenuItem esgt;
 
     @FXML private TableView<Ticket> tableView;
     @FXML private TableColumn<Ticket, Integer> idColumn;
@@ -119,11 +140,16 @@ public class MainViewController implements Initializable {
         System.out.println(bgImage.getUrl());
         System.out.println(bgImage.getException().toString());
 
+        initializeLocalization();
+
         initTableColumns();
 
         synchronizeCollection();
 
-        System.out.println(bgImage.getUrl());
+        AppLocale.currentLocaleProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(this::updateUILocalization);
+        });
+
 
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -140,25 +166,101 @@ public class MainViewController implements Initializable {
             }
         });
 
-        // Для обмена коллекцией
 //        client.addCollectionUpdateListener((newCollection) -> {
 //            Platform.runLater(() -> {
 //                updateTableData(newCollection);
 //            });
 //        });
-//        client.startListeningForUpdates();
 
-        new Thread(() -> {
-            while (!Thread.interrupted()) {
-                synchronizeCollection();
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException interruptedException) {
-                    break;
-                }
-            }
+//        new Thread(() -> {
+//            try {
+//                while (true) {
+//                    synchronizeCollection();
+//                    Thread.sleep(3000);
+//                }
+//            } catch (InterruptedException interruptedException) {
+//            }
+//        }).start();
+    }
 
-        });
+    private void initializeLocalization() {
+        Locale currentLocale = AppLocale.getCurrentLocale();
+        switch (currentLocale.getLanguage()) {
+            case "ru" -> ru.setSelected(true);
+            case "cs" -> cz.setSelected(true);
+            case "bg" -> bg.setSelected(true);
+            case "es" -> esgt.setSelected(true);
+        }
+    }
+
+    private void updateUILocalization() {
+        fileMenu.setText(AppLocale.getString("FileMenu"));
+        updateColelctionButton.setText(AppLocale.getString("UpdateCollection"));
+        serverInfoButton.setText(AppLocale.getString("ServerInfo"));
+        logoutButton.setText(AppLocale.getString("Logout"));
+
+        commandsMenu.setText(AppLocale.getString("CommandsMenu"));
+        paramsMenu.setText(AppLocale.getString("ParamsMenu"));
+
+        updateColelctionButton.setText(AppLocale.getString("UpdateCollection"));
+        serverInfoButton.setText(AppLocale.getString("ServerInfo"));
+        logoutButton.setText(AppLocale.getString("Logout"));
+
+        // Обновляем метки
+        currentUser.setText(AppLocale.getString("CurrentUser"));
+        nameFilter.setText(AppLocale.getString("NameFilterLabel"));
+
+        ru.setText(AppLocale.getString("LangRu"));
+        bg.setText(AppLocale.getString("LangBg"));
+        cz.setText(AppLocale.getString("LangCz"));
+        esgt.setText(AppLocale.getString("LangEsGt"));
+
+        addElementButton.setText(AppLocale.getString("AddElement"));
+        deleteMenu.setText(AppLocale.getString("DeleteMenu"));
+
+        deleteById.setText(AppLocale.getString("DeleteById"));
+        clearMyItems.setText(AppLocale.getString("ClearMyItems"));
+        removeHead.setText(AppLocale.getString(removeHead.getUserData().toString()));
+
+        // Обновляем подсказку для поля ввода
+        startsWithInput.setPromptText(AppLocale.getString("NameFilterPrompt"));
+
+    }
+
+    @FXML
+    private void setRuLang() {
+        try {
+            AppLocale.setLocale(new Locale("ru"));
+        } catch (Exception e) {
+            System.err.println("Ошибка при установке русского языка: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void setCzLang() {
+        try {
+            AppLocale.setLocale(new Locale("cs"));
+        } catch (Exception e) {
+            System.err.println("Ошибка при установке чешского языка: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void setBgLang() {
+        try {
+            AppLocale.setLocale(new Locale("bg"));
+        } catch (Exception e) {
+            System.err.println("Ошибка при установке болгарского языка: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void setEsgtLang() {
+        try {
+            AppLocale.setLocale(new Locale("es", "GT"));
+        } catch (Exception e) {
+            System.err.println("Ошибка при установке испанского языка: " + e.getMessage());
+        }
     }
 
     private static void drawGrid(GraphicsContext gc, double width, double height, double cellSize) {
@@ -208,10 +310,8 @@ public class MainViewController implements Initializable {
                 rectAlphaMap.put(coords, 0.0);
             }
 
-            // 2. Удалить исчезнувшие прямоугольники из alphaMap (чтобы не росла Map)
             rectAlphaMap.keySet().removeIf(key -> !canvasCoordsMap.containsKey(key));
 
-            // 3. Запускаем анимацию
             if (appearTimeline != null) appearTimeline.stop();
 
             appearTimeline = new Timeline();
@@ -282,17 +382,18 @@ public class MainViewController implements Initializable {
      */
     private void updateTableData(Collection<Ticket> newCollection) {
         Platform.runLater(() -> {
-            boolean redraw = false;
-            if (isCollectionChanged(newCollection, ticketsObserveCollection)) redraw = true;
+            boolean collectionChanged = isCollectionChanged(newCollection, ticketsObserveCollection);
 
-            ticketsObserveCollection.clear();
-            ticketsObserveCollection.addAll(newCollection);
+            if (collectionChanged) {
+                ticketsObserveCollection.clear();
+                ticketsObserveCollection.addAll(newCollection);
 
-            filterStartsByNameFilter();
+                filterStartsByNameFilter();
 
-            tableView.refresh();
-            if (redraw) redrawCanvas();
-            statusBarNotify("OK", "Получена актуальная коллекция с сервера. Всего элементов: " + newCollection.size());
+                tableView.refresh();
+                redrawCanvas();
+                statusBarNotify("OK", "Получена актуальная коллекция с сервера. Всего элементов: " + newCollection.size());
+            }
         });
     }
 
@@ -383,8 +484,8 @@ public class MainViewController implements Initializable {
     private void statusBarNotify(String code, String message) {
         statusCodeBar.setText(code);
         statusMessage.setText(message);
-        statusLabel.setText("Статус:");
-        messageLabel.setText("Сообщение:");
+        statusLabel.setText(AppLocale.getString("Status"));
+        messageLabel.setText(AppLocale.getString("Message"));
 
         Timeline timeline = new Timeline(new KeyFrame(
                 Duration.seconds(5),
@@ -415,17 +516,26 @@ public class MainViewController implements Initializable {
         }).start();
     }
 
-    private static boolean isCollectionChanged(Collection<Ticket> newCollection, ObservableList<Ticket> oldCollection) {
-        if (newCollection.size() != oldCollection.size()) return true;
-        List<Integer> newIds = newCollection.stream().map(Ticket::getId).sorted().toList();
-        List<Integer> oldIds = oldCollection.stream().map(Ticket::getId).sorted().toList();
-        return !newIds.equals(oldIds);
+
+    private static boolean isCollectionChanged(Collection<Ticket> newCollection,
+                                               ObservableList<Ticket> oldCollection) {
+        if (newCollection.size() != oldCollection.size()) {
+            return true;
+        }
+        Set<Ticket> newSet = new HashSet<>(newCollection);
+
+        for (Ticket oldTicket : oldCollection) {
+            if (!newSet.contains(oldTicket)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void updateUsersColors() {
         userToColor.clear();
         Set<String> users = ticketsObserveCollection.stream().map(Ticket::getOwnerLogin).collect(Collectors.toSet());
-        System.out.println("users: " + users.toString());
         int n = users.size();
         int i = 0;
         for (String user : users) {
@@ -433,7 +543,6 @@ public class MainViewController implements Initializable {
             Color color = Color.hsb(hue, 0.9, 0.9);
             userToColor.put(user, color);
             i++;
-            System.out.println(hue);
         }
     }
 
@@ -570,21 +679,6 @@ public class MainViewController implements Initializable {
     private void executeScriptCommand() {
     }
 
-    @FXML
-    private void setRuLang() {
-    }
-
-    @FXML
-    private void setCzLang() {
-    }
-
-    @FXML
-    private void setBgLang() {
-    }
-
-    @FXML
-    private void setEsgvLang() {
-    }
 
     @FXML
     private void addElement() {
