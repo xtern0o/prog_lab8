@@ -3,8 +3,12 @@ package org.example.server.command.commands;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
+import org.example.common.entity.Ticket;
 import org.example.server.command.Command;
 import org.example.server.managers.CollectionManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HeadCommand extends Command {
     public HeadCommand() {
@@ -19,6 +23,7 @@ public class HeadCommand extends Command {
         if (CollectionManager.getCollection().isEmpty()) {
             return new Response(ResponseStatus.OK, "Коллекция пуста");
         }
-        return new Response(ResponseStatus.OK, CollectionManager.getCollection().peek().toString());
+        Ticket head = CollectionManager.getCollection().peek();
+        return new Response(ResponseStatus.OK, head.toString(), new ArrayList<>(List.of(head)));
     }
 }

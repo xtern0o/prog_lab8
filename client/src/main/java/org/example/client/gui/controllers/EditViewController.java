@@ -1,19 +1,11 @@
 package org.example.client.gui.controllers;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.InputMethodEvent;
-import javafx.scene.layout.Pane;
-import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.client.managers.AuthManager;
@@ -23,15 +15,17 @@ import org.example.client.utils.DialogHandler;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
+import org.example.common.entity.Coordinates;
 import org.example.common.entity.Country;
+import org.example.common.entity.Person;
 import org.example.common.entity.Ticket;
 import org.example.common.entity.TicketType;
 
-import javax.imageio.plugins.jpeg.JPEGImageReadParam;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class EditViewController implements Initializable {
     enum EditMode {
@@ -55,7 +49,6 @@ public class EditViewController implements Initializable {
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
     @FXML private ImageView smiley;
-    // я так заебался это писать
 
     Client client = ClientSingleton.getClient();
 
@@ -75,10 +68,49 @@ public class EditViewController implements Initializable {
 
     HashMap<Control, Boolean> validControl = new HashMap<>();
 
+    private final Predicate<String> isNameValid = name -> name != null && !name.isBlank();
+
+    private final Predicate<String> isPriceValid = priceStr -> {
+        try {
+            double price = Double.parseDouble(priceStr);
+            return price > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    };
+
+    private final Predicate<String> isHeightValid = heightStr -> {
+        try {
+            long height = Long.parseLong(heightStr);
+            return height > 0;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    };
+
+    private final Predicate<String> isXValid = xStr -> {
+        try {
+            Float.parseFloat(xStr);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    };
+
+    private final Predicate<String> isYValid = yStr -> {
+        try {
+            int y = Integer.parseInt(yStr);
+            return y > -471; // Исправлено на > -471
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    };
+
     public void setTicket(Ticket t) {
         this.ticket = t;
         fillFields();
-
+        validateAllFields();
+        updateSmiley();
     }
 
     @Override
@@ -88,6 +120,7 @@ public class EditViewController implements Initializable {
             typeCombo.getItems().add(type.name());
         }
         typeCombo.getItems().add("");
+
         pNationField.getItems().clear();
         for (Country country : Country.values()) {
             pNationField.getItems().add(country.name());
@@ -96,22 +129,24 @@ public class EditViewController implements Initializable {
 
         discountSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             discountValLabel.setText(String.format("%.2f", newVal.floatValue()));
-            ticket.setDiscount(newVal.floatValue());
+            if (ticket != null) {
+                ticket.setDiscount(newVal.floatValue());
+            }
         });
         discountValLabel.setText(String.format("%.2f", discountSlider.getValue()));
 
-        validControl.put(nameField, true);
-        validControl.put(priceField, true);
-        validControl.put(pHeightField, true);
-        validControl.put(xField, true);
-        validControl.put(yField, true);
+        validControl.put(nameField, false);
+        validControl.put(priceField, false);
+        validControl.put(pHeightField, false);
+        validControl.put(xField, false);
+        validControl.put(yField, false);
         validControl.put(refundableField, true);
         validControl.put(typeCombo, true);
         validControl.put(pNationField, true);
 
         fillFields();
-
     }
+
     @FXML
     private void cancel() {
         mainCallback.run();
@@ -119,10 +154,11 @@ public class EditViewController implements Initializable {
 
     @FXML
     private void save() {
-        if (!ticket.validate()) {
+        if (!validateAllFields()) {
             DialogHandler.errorAlert("Ошибка", "Ошибка валидации", "Одно или несколько полей невалидны");
             return;
         }
+
         new Thread(() -> {
             if (mode.equals(EditMode.UPDATE)) {
                 RequestCommand requestCommand = new RequestCommand(
@@ -164,7 +200,6 @@ public class EditViewController implements Initializable {
                 }
             }
         }).start();
-
     }
 
     private void fillFields() {
@@ -174,16 +209,25 @@ public class EditViewController implements Initializable {
             nameField.setText(ticket.getName());
             priceField.setText(String.valueOf(ticket.getPrice()));
             discountSlider.setValue(ticket.getDiscount());
-            pHeightField.setText(String.valueOf(ticket.getPerson().getHeight()));
-            xField.setText(String.valueOf(ticket.getCoordinates().getX()));
-            yField.setText(String.valueOf(ticket.getCoordinates().getY()));
+
+            if (ticket.getPerson() != null) {
+                pHeightField.setText(String.valueOf(ticket.getPerson().getHeight()));
+                if (ticket.getPerson().getNationality() != null) {
+                    pNationField.setValue(ticket.getPerson().getNationality().name());
+                }
+            }
+
+            if (ticket.getCoordinates() != null) {
+                xField.setText(String.valueOf(ticket.getCoordinates().getX()));
+                yField.setText(String.valueOf(ticket.getCoordinates().getY()));
+            }
+
             refundableField.setSelected(ticket.isRefundable());
+
             if (ticket.getType() != null) {
                 typeCombo.setValue(ticket.getType().name());
             }
-            if (ticket.getPerson() != null && ticket.getPerson().getNationality() != null) {
-                pNationField.setValue(ticket.getPerson().getNationality().name());
-            }
+
             idField.setText(String.valueOf(ticket.getId()));
             ownerField.setText(ticket.getOwnerLogin());
             creationDateField.setText(ticket.getCreationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
@@ -205,109 +249,162 @@ public class EditViewController implements Initializable {
             mode = EditMode.ADD;
             this.ticket = new Ticket();
             ticket.setOwnerLogin(AuthManager.getCurrentUser().login());
+            ticket.setCreationDate(ZonedDateTime.now());
+            ticket.setCoordinates(new Coordinates());
+            ticket.setPerson(new Person());
+            ticket.setRefundable(false);
+
             creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
             ownerField.setText(AuthManager.getCurrentUser().login());
-            validControl.put(nameField, false);
-            validControl.put(priceField, false);
-            validControl.put(pHeightField, false);
-            validControl.put(xField, false);
-            validControl.put(yField, false);
 
+            nameField.setText("");
+            priceField.setText("");
+            pHeightField.setText("");
+            xField.setText("");
+            yField.setText("");
+            refundableField.setSelected(false);
+            typeCombo.setValue("");
+            pNationField.setValue("");
+
+            resetValidation();
         }
+
+        updateSmiley();
+    }
+
+    private void resetValidation() {
+        validControl.put(nameField, false);
+        validControl.put(priceField, false);
+        validControl.put(pHeightField, false);
+        validControl.put(xField, false);
+        validControl.put(yField, false);
+
+        nameField.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+        priceField.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+        pHeightField.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+        xField.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+        yField.setStyle("-fx-border-color: red; -fx-border-width: 2px");
+    }
+
+    private boolean validateAllFields() {
+        validateField(nameField, isNameValid);
+        validateField(priceField, isPriceValid);
+        validateField(pHeightField, isHeightValid);
+        validateField(xField, isXValid);
+        validateField(yField, isYValid);
+
+        boolean allValid = true;
+        for (Boolean valid : validControl.values()) {
+            if (!valid) {
+                allValid = false;
+                break;
+            }
+        }
+
+        updateSmiley();
+        return allValid;
+    }
+
+    private void validateField(TextField field, Predicate<String> validationPredicate) {
+        String value = field.getText();
+        boolean isValid = validationPredicate.test(value);
+
+        validControl.put(field, isValid);
+        field.setStyle(isValid ? "" : "-fx-border-color: red; -fx-border-width: 2px");
+    }
+
+    private void updateSmiley() {
+        boolean allValid = validControl.values().stream().allMatch(valid -> valid);
+
+        String imagePath = allValid ? "/gui/image/smiley_ok.png" : "/gui/image/smiley_bad.png";
+        smiley.setImage(new Image(getClass().getResource(imagePath).toExternalForm()));
     }
 
     private void evilActivate(Control control) {
-        smiley.setImage(new Image(getClass().getResource("/gui/image/smiley_bad.png").toExternalForm()));
         control.setStyle("-fx-border-color: red; -fx-border-width: 2px");
         validControl.put(control, false);
-
+        updateSmiley();
     }
 
     private void okActivate(Control control) {
-        validControl.put(control, true);
-        if (ticket.validate() && validControl.values().stream().allMatch(x -> x)) smiley.setImage(new Image(getClass().getResource("/gui/image/smiley_ok.png").toExternalForm()));
         control.setStyle("");
+        validControl.put(control, true);
+        updateSmiley();
     }
 
     public void nameChanged() {
         String name = nameField.getText();
-        ticket.setName(name);
-        if (name == null || name.isBlank()) evilActivate(nameField);
-        else {
-            okActivate(nameField);
-
+        if (ticket != null) {
+            ticket.setName(name);
         }
+
+        validateField(nameField, isNameValid);
+        updateSmiley();
     }
 
     public void priceChanged() {
-        try {
-            double price = Double.parseDouble(priceField.getText());
-            ticket.setPrice(price);
-            if (price <= 0) evilActivate(priceField);
-            else {
-                okActivate(priceField);
-            }
-        } catch (NumberFormatException e) {
-            evilActivate(priceField);
+        String priceStr = priceField.getText();
+        if (isPriceValid.test(priceStr) && ticket != null) {
+            ticket.setPrice(Double.parseDouble(priceStr));
         }
+
+        validateField(priceField, isPriceValid);
+        updateSmiley();
     }
 
     public void pHeightChanged() {
-        try {
-            long height = Long.parseLong(pHeightField.getText());
-            ticket.getPerson().setHeight(height);
-            if (height <= 0) evilActivate(pHeightField);
-            else {
-                okActivate(pHeightField);
-            }
-        } catch (NumberFormatException e) {
-            evilActivate(pHeightField);
+        String heightStr = pHeightField.getText();
+        if (isHeightValid.test(heightStr) && ticket != null && ticket.getPerson() != null) {
+            ticket.getPerson().setHeight(Long.parseLong(heightStr));
         }
+
+        validateField(pHeightField, isHeightValid);
+        updateSmiley();
     }
 
     public void refundableChanged() {
-        ticket.setRefundable(refundableField.isSelected());
+        if (ticket != null) {
+            ticket.setRefundable(refundableField.isSelected());
+        }
     }
 
     public void typeChanged() {
-        if (typeCombo.getValue().isEmpty()) {
-            ticket.setType(null);
-            return;
+        if (ticket != null) {
+            if (typeCombo.getValue() == null || typeCombo.getValue().isEmpty()) {
+                ticket.setType(null);
+            } else {
+                ticket.setType(TicketType.valueOf(typeCombo.getValue()));
+            }
         }
-        ticket.setType(TicketType.valueOf(typeCombo.getValue()));
     }
 
     public void pNationChanged() {
-        if (pNationField.getValue().isEmpty()) {
-            ticket.getPerson().setNationality(null);
-            return;
+        if (ticket != null && ticket.getPerson() != null) {
+            if (pNationField.getValue() == null || pNationField.getValue().isEmpty()) {
+                ticket.getPerson().setNationality(null);
+            } else {
+                ticket.getPerson().setNationality(Country.valueOf(pNationField.getValue()));
+            }
         }
-
-        ticket.getPerson().setNationality(Country.valueOf(pNationField.getValue()));
     }
 
     public void xChanged() {
-        try {
-            float x = Float.parseFloat(xField.getText());
-            ticket.getCoordinates().setX(x);
-            okActivate(xField);
-        } catch (NumberFormatException e) {
-            evilActivate(xField);
+        String xStr = xField.getText();
+        if (isXValid.test(xStr) && ticket != null && ticket.getCoordinates() != null) {
+            ticket.getCoordinates().setX(Float.parseFloat(xStr));
         }
+
+        validateField(xField, isXValid);
+        updateSmiley();
     }
 
     public void yChanged() {
-        try {
-            int y = Integer.parseInt(yField.getText());
-            ticket.getCoordinates().setY(y);
-            if (y <= -417) evilActivate(yField);
-            else {
-                okActivate(yField);
-            }
-        } catch (NumberFormatException e) {
-            evilActivate(yField);
+        String yStr = yField.getText();
+        if (isYValid.test(yStr) && ticket != null && ticket.getCoordinates() != null) {
+            ticket.getCoordinates().setY(Integer.parseInt(yStr));
         }
+
+        validateField(yField, isYValid);
+        updateSmiley();
     }
-
-
 }

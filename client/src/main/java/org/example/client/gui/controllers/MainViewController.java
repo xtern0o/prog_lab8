@@ -65,7 +65,6 @@ public class MainViewController implements Initializable {
 
     private Client client = ClientSingleton.getClient();
 
-
     @Getter
     @Setter
     private Runnable authCallback;
@@ -219,6 +218,7 @@ public class MainViewController implements Initializable {
 
         tableView.setRowFactory(tableView -> {
             TableRow<Ticket> row = new TableRow<Ticket>();
+
             row.setOnMouseClicked(mouseEvent -> {
                 if (mouseEvent.getClickCount() == 2 && ! row.isEmpty()) {
                     doubleClickEdit(row.getItem());
@@ -329,6 +329,10 @@ public class MainViewController implements Initializable {
             RequestCommand requestCommand = new RequestCommand("head", AuthManager.getCurrentUser());
             Response response = client.send(requestCommand);
             if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                if (response.getCollection() != null) {
+                    Ticket head = response.getCollection().stream().findFirst().get();
+                }
+
                 Platform.runLater(() -> {
                     DialogHandler.commandResponseAlert(
                             "Первый элемент",
@@ -347,12 +351,29 @@ public class MainViewController implements Initializable {
         }).start();
     }
 
-    @FXML
-    private void printUniqueDiscountCommand() {
-    }
 
     @FXML
-    private void printFieldDescendingPersonCommand() {
+    private void printUniqueDiscountCommand() {
+        new Thread(() -> {
+            RequestCommand requestCommand = new RequestCommand("print_unique_discount", AuthManager.getCurrentUser());
+            Response response = client.send(requestCommand);
+            if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                Platform.runLater(() -> {
+                    DialogHandler.commandResponseAlert(
+                            "Уникальные discount",
+                            "Уникальные discount",
+                            response.getMessage()
+                    );
+                    statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
+
+                });
+            }
+            else {
+                Platform.runLater(() -> {
+                    statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
+                });
+            }
+        }).start();
     }
 
     @FXML
@@ -394,17 +415,17 @@ public class MainViewController implements Initializable {
             RequestCommand requestCommand = new RequestCommand("remove_head", AuthManager.getCurrentUser());
             Response response = client.send(requestCommand);
             if (response.getResponseStatus().equals(ResponseStatus.OK)) {
+                synchronizeCollection();
                 Platform.runLater(() -> {
                     DialogHandler.commandResponseAlert(
                             "Удаление элемента",
                             "Результат выполнения удаления",
                             response.getMessage()
                     );
-                    synchronizeCollection();
                     statusBarNotify(response.getResponseStatus().toString(), "Ответ получен");
 
-
                 });
+
             }
             else {
                 Platform.runLater(() -> {
@@ -441,6 +462,7 @@ public class MainViewController implements Initializable {
                         AuthManager.getCurrentUser()
                 );
                 Response response = client.send(requestCommand);
+                synchronizeCollection();
                 Platform.runLater(() -> {
                     statusBarNotify(response.getResponseStatus().toString(), response.getMessage());
                 });

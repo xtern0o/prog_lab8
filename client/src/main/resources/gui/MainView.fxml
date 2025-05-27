@@ -42,7 +42,6 @@
                         <MenuItem fx:id="historyCommand" mnemonicParsing="false" onAction="#showHistory" text="history" />
                         <MenuItem fx:id="headCommand" mnemonicParsing="false" onAction="#getHead" text="head" />
                         <MenuItem fx:id="printUniqueDiscount" mnemonicParsing="false" onAction="#printUniqueDiscountCommand" text="print_unique_discount" />
-                        <MenuItem fx:id="printFieldDescendingPerson" mnemonicParsing="false" onAction="#printFieldDescendingPersonCommand" text="print_field_descending_person" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                     <MenuItem fx:id="executeScript" mnemonicParsing="false" onAction="#executeScriptCommand" text="execute_script" />
                   </items>
