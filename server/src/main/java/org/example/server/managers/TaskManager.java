@@ -36,7 +36,9 @@ public class TaskManager {
                             if (pool.response().getResponseStatus().equals(ResponseStatus.COLLECTION_UPDATE)) {
                                 CollectionNotifier.notifyAllClients();
                             }
-                            ConnectionManager.sendNewResponse(pool);
+                            else {
+                                ConnectionManager.sendNewResponse(pool);
+                            }
                         }
                     } catch (ExecutionException | InterruptedException e) {
                         logger.warn("Произошла ошибка при обработке future's: {}", e.getMessage());
