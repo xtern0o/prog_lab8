@@ -81,8 +81,6 @@ public class RequestCommandHandler implements Callable<List<ConnectionPool>> {
                 )));
             }
 
-            if (oldCollection.equals(newCollection))
-
             return new ArrayList<>(List.of(new ConnectionPool(
                     response,
                     objectOutputStream
