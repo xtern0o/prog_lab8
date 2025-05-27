@@ -9,6 +9,8 @@ import org.example.server.command.Command;
 import org.example.server.command.NoAuthCommand;
 import org.example.server.managers.CollectionManager;
 import org.example.server.managers.CommandManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  * @author maxkarn
  */
 public class RequestCommandHandler implements Callable<List<ConnectionPool>> {
+    private static final Logger logger = LoggerFactory.getLogger(RequestCommandHandler.class);
     private final CommandManager commandManager;
     private final RequestCommand requestCommand;
     private final ObjectOutputStream objectOutputStream;
@@ -62,10 +65,21 @@ public class RequestCommandHandler implements Callable<List<ConnectionPool>> {
             Response response = commandManager.execute(requestCommand);
             PriorityBlockingQueue<Ticket> newCollection = CollectionManager.getCollection();
 
-            if (oldCollection.equals(newCollection)) return new ArrayList<>(List.of(new ConnectionPool(
-                    response,
-                    objectOutputStream
-            )));
+            logger.info("Old collection hash: {}, size: {}", oldCollection.hashCode(), oldCollection.size());
+            logger.info("New collection hash: {}, size: {}", newCollection.hashCode(), newCollection.size());
+            logger.info("Collections equal: {}", oldCollection.equals(newCollection));
+
+            boolean contentChanged = oldCollection.size() != newCollection.size() ||
+                    !oldCollection.containsAll(newCollection) ||
+                    !newCollection.containsAll(oldCollection);
+            logger.info("Content changed: {}", contentChanged);
+
+            if (contentChanged) {
+                return new ArrayList<>(List.of(new ConnectionPool(
+                        response,
+                        objectOutputStream
+                )));
+            }
 
             return new ArrayList<>(List.of(new ConnectionPool(
                     response,
