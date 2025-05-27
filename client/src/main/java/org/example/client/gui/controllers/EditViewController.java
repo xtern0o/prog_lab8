@@ -253,6 +253,7 @@ public class EditViewController implements Initializable {
             ticket.setCoordinates(new Coordinates());
             ticket.setPerson(new Person());
             ticket.setRefundable(false);
+            ticket.setDiscount((float) discountSlider.getValue());
 
             creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
             ownerField.setText(AuthManager.getCurrentUser().login());

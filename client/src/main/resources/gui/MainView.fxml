@@ -40,7 +40,6 @@
                   <items>
                         <MenuItem fx:id="infoCommand" mnemonicParsing="false" onAction="#getInfo" text="info" />
                         <MenuItem fx:id="historyCommand" mnemonicParsing="false" onAction="#showHistory" text="history" />
-                        <MenuItem fx:id="headCommand" mnemonicParsing="false" onAction="#getHead" text="head" />
                         <MenuItem fx:id="printUniqueDiscount" mnemonicParsing="false" onAction="#printUniqueDiscountCommand" text="print_unique_discount" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                     <MenuItem fx:id="executeScript" mnemonicParsing="false" onAction="#executeScriptCommand" text="execute_script" />
@@ -107,8 +106,9 @@
                   </HBox>
               </items>
             </ToolBar>
-            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+            <HBox alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                <children>
+                  <Button fx:id="head" mnemonicParsing="false" onAction="#getHead" text="head" />
                   <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
                      <children>
                         <Label text="Фильтр по имени:">
