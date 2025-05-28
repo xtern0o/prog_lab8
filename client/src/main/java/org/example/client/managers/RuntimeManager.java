@@ -2,6 +2,8 @@ package org.example.client.managers;
 
 import org.example.client.builders.TicketBuilder;
 import org.example.client.cli.ConsoleInput;
+import org.example.client.cli.ConsoleOutput;
+import org.example.client.utils.ClientSingleton;
 import org.example.common.dtp.RequestCommand;
 import org.example.common.dtp.Response;
 import org.example.common.dtp.ResponseStatus;
@@ -22,16 +24,20 @@ import java.util.Objects;
 public class RuntimeManager implements Runnable {
     private final Printable consoleOutput;
     private final ConsoleInput consoleInput;
-    private final Client client;
+    private Client client = ClientSingleton.getClient();
     private final RunnableScriptsManager runnableScriptsManager;
     private final ClientCommandManager clientCommandManager;
 
-    public RuntimeManager(Printable consoleOutput, ConsoleInput consoleInput, Client client, RunnableScriptsManager runnableScriptsManager, ClientCommandManager clientCommandManager) {
+    public RuntimeManager(Printable consoleOutput, ConsoleInput consoleInput, RunnableScriptsManager runnableScriptsManager, ClientCommandManager clientCommandManager) {
         this.consoleOutput = consoleOutput;
         this.consoleInput = consoleInput;
-        this.client = client;
+        this.client = ClientSingleton.getClient();
         this.runnableScriptsManager = runnableScriptsManager;
         this.clientCommandManager = clientCommandManager;
+    }
+
+    public void executeCommand(String command) {
+
     }
 
     /**
@@ -58,7 +64,7 @@ public class RuntimeManager implements Runnable {
 
                 String[] queryParts = queryString.split(" ");
 
-                if (processClientCommand(queryParts)) continue;
+                if (processClientCommand(queryParts, clientCommandManager)) continue;
 
                 if (Objects.isNull(AuthManager.getCurrentUser())) {
                     consoleOutput.printError("Неавторизованные пользователи не могут выполнять команды для взаимодействия с коллекцией");
@@ -213,7 +219,7 @@ public class RuntimeManager implements Runnable {
      * @param queryParts части команды
      * @return true если команда выполнена false если нет
      */
-    public boolean processClientCommand(String[] queryParts) {
+    public static boolean processClientCommand(String[] queryParts, ClientCommandManager clientCommandManager) {
         String qCommandName = queryParts[0];
         if (qCommandName.isBlank()) return false;
         String[] qCommandArgs = Arrays.copyOfRange(queryParts, 1, queryParts.length);

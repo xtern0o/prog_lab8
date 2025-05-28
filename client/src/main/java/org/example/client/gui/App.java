@@ -49,6 +49,7 @@ public class App extends Application {
             MainViewController mainViewController = mainLoader.getController();
             mainViewController.setAuthCallback(this::runAuth);
             mainViewController.setEditCallback(this::runEdit);
+            mainViewController.setStage(currentStage);
 
             Scene mainScene = new Scene(mainRoot);
             currentStage.setScene(mainScene);
@@ -84,4 +85,5 @@ public class App extends Application {
             throw new RuntimeException(ioException);
         }
     }
+
 }

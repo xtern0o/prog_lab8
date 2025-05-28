@@ -2,6 +2,7 @@ package org.example.client.builders;
 
 import org.example.client.cli.ConsoleInput;
 import org.example.client.managers.AuthManager;
+import org.example.client.utils.InputReader;
 import org.example.common.entity.Coordinates;
 import org.example.common.entity.Person;
 import org.example.common.entity.Ticket;
@@ -14,7 +15,7 @@ import java.util.function.Predicate;
  * Билдер для объектов класса Ticket
  */
 public class TicketBuilder extends Builder<Ticket>{
-    public TicketBuilder(Printable consoleOutput, ConsoleInput consoleInput) {
+    public TicketBuilder(Printable consoleOutput, InputReader consoleInput) {
         super(consoleOutput, consoleInput);
     }
 

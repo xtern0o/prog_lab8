@@ -39,7 +39,8 @@ public class Main {
 
         clientCommandManager.addCommands(commands);
 
-//        new RuntimeManager(consoleOutput, consoleInput, client, runnableScriptsManager, clientCommandManager).run();
+
+//        new RuntimeManager(consoleOutput, consoleInput, runnableScriptsManager, clientCommandManager).run();
         Application.launch(App.class, args);
     }
 }

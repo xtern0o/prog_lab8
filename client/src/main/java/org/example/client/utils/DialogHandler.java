@@ -6,8 +6,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Font;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.Optional;
 
 /**
@@ -117,4 +119,21 @@ public class DialogHandler {
         Optional<Integer> result = dialog.showAndWait();
         return result.orElse(null);
     }
+
+    /**
+     * Простой диалог выбора файла
+     *
+     * @param stage родительское окно для диалога
+     * @param title заголовок диалога (если null, то используется стандартный)
+     * @return выбранный файл или null, если пользователь отменил выбор
+     */
+    public static File selectFile(Stage stage, String title) {
+        FileChooser fileChooser = new FileChooser();
+        if (title != null && !title.isEmpty()) {
+            fileChooser.setTitle(title);
+        }
+        return fileChooser.showOpenDialog(stage);
+    }
+
+
 }
