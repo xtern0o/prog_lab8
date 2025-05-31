@@ -1,20 +1,9 @@
 package org.example.client.managers;
 
-import org.example.client.cli.ConsoleInput;
-import org.example.client.utils.ClientSingleton;
 import org.example.client.utils.InputReader;
-import org.example.common.dtp.RequestCommand;
-import org.example.common.dtp.Response;
-import org.example.common.entity.Ticket;
 
 import java.io.*;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-
-import static org.example.client.Main.consoleOutput;
 
 /**
  * Менеджер для контроля корректности выполнения исполняемых скриптов
