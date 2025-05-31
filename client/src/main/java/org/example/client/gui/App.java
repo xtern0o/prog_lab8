@@ -5,9 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.example.client.gui.controllers.AuthViewController;
-import org.example.client.gui.controllers.EditViewController;
-import org.example.client.gui.controllers.MainViewController;
+import org.example.client.gui.controllers.*;
 import org.example.client.managers.AuthManager;
 import org.example.common.entity.Ticket;
 

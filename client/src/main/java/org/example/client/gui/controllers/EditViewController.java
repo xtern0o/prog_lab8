@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.client.managers.AuthManager;
 import org.example.client.managers.Client;
+import org.example.client.utils.AppLocale;
 import org.example.client.utils.ClientSingleton;
 import org.example.client.utils.DialogHandler;
 import org.example.common.dtp.RequestCommand;
@@ -24,6 +25,7 @@ import org.example.common.entity.TicketType;
 import java.net.URL;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -144,7 +146,14 @@ public class EditViewController implements Initializable {
         validControl.put(typeCombo, true);
         validControl.put(pNationField, true);
 
+        setLocalization();
+
         fillFields();
+    }
+
+    private void setLocalization() {
+        saveButton.setText(AppLocale.getString("Save"));
+        cancelButton.setText(AppLocale.getString("Cancel"));
     }
 
     @FXML
@@ -155,7 +164,7 @@ public class EditViewController implements Initializable {
     @FXML
     private void save() {
         if (!validateAllFields()) {
-            DialogHandler.errorAlert("Ошибка", "Ошибка валидации", "Одно или несколько полей невалидны");
+            DialogHandler.errorAlert(AppLocale.getString("Error"), AppLocale.getString("ValidationError"), "Одно или несколько полей невалидны");
             return;
         }
 
@@ -176,7 +185,7 @@ public class EditViewController implements Initializable {
                     });
                 } else {
                     Platform.runLater(() -> {
-                        DialogHandler.errorAlert("Неудача", "Произошла ошибка при обновлении: " + response.getResponseStatus().toString(), response.getMessage());
+                        DialogHandler.errorAlert(AppLocale.getString("Success"), AppLocale.getString("ErrorWhileUpdate", response.getResponseStatus().toString()), response.getMessage());
                     });
                 }
             }
@@ -189,13 +198,13 @@ public class EditViewController implements Initializable {
                 Response response = client.send(requestCommand);
                 if (response.getResponseStatus().equals(ResponseStatus.OK)) {
                     Platform.runLater(() -> {
-                        DialogHandler.successAlert("Успех", "Создание объекта", response.getMessage());
+                        DialogHandler.successAlert(AppLocale.getString("Success"), AppLocale.getString("ObjectCreation"), response.getMessage());
                         System.out.println(ticket);
                         mainCallback.run();
                     });
                 } else {
                     Platform.runLater(() -> {
-                        DialogHandler.errorAlert("Неудача", "Произошла ошибка при создании: " + response.getResponseStatus().toString(), response.getMessage());
+                        DialogHandler.errorAlert(AppLocale.getString("Unluck"), AppLocale.getString("ErrorWhileCreating", response.getResponseStatus().toString()), response.getMessage());
                     });
                 }
             }
@@ -230,7 +239,9 @@ public class EditViewController implements Initializable {
 
             idField.setText(String.valueOf(ticket.getId()));
             ownerField.setText(ticket.getOwnerLogin());
-            creationDateField.setText(ticket.getCreationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            creationDateField.setText(ticket.getCreationDate().format(DateTimeFormatter
+                    .ofLocalizedDate(FormatStyle.LONG)
+                    .withLocale(AppLocale.getCurrentLocale())));
 
             if (!ticket.getOwnerLogin().equals(AuthManager.getCurrentUser().login())) {
                 nameField.setDisable(true);
@@ -255,7 +266,9 @@ public class EditViewController implements Initializable {
             ticket.setRefundable(false);
             ticket.setDiscount((float) discountSlider.getValue());
 
-            creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+            creationDateField.setText(ZonedDateTime.now().format(DateTimeFormatter
+                    .ofLocalizedDate(FormatStyle.MEDIUM)
+                    .withLocale(AppLocale.getCurrentLocale())));
             ownerField.setText(AuthManager.getCurrentUser().login());
 
             nameField.setText("");

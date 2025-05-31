@@ -19,6 +19,9 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Класс для выполнения скриптов
+ */
 public class ScriptExecutor {
     @Getter
     private String res = "";
@@ -41,10 +44,6 @@ public class ScriptExecutor {
     private InputReader consoleInput;
 
     Client client;
-    public enum ExitCode {
-        OK,
-        ERROR
-    }
 
     private final List<File> scriptStack = new ArrayList<>();
 
@@ -56,7 +55,6 @@ public class ScriptExecutor {
     public void run(File file) {
         String userCommand;
         scriptStack.add(file);
-        ExitCode commandStatus = ExitCode.OK;
 
         try (Scanner scriptScanner = new Scanner(file)) {
             if (!scriptScanner.hasNext()) throw new NoSuchElementException();

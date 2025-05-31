@@ -9,17 +9,23 @@ import javafx.collections.ObservableArray;
 import javafx.collections.ObservableArrayBase;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.Pair;
@@ -27,6 +33,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.client.cli.ConsoleInput;
 import org.example.client.cli.ConsoleOutput;
+import org.example.client.gui.filters.TableFilterManager;
 import org.example.client.managers.*;
 import org.example.client.utils.*;
 import org.example.common.dtp.RequestCommand;
@@ -40,10 +47,13 @@ import org.w3c.dom.css.Rect;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.SQLOutput;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -108,14 +118,13 @@ public class MainViewController implements Initializable {
     private final Map<RectCoords, Double> rectAlphaMap = new ConcurrentHashMap<>();
     private Timeline appearTimeline;
 
-    private String filterStartsWith;
-
     @Getter
     @Setter
     private Image bgImage;
 
     private volatile ObservableList<Ticket> ticketsObserveCollection = FXCollections.observableArrayList();
-    private FilteredList<Ticket> filteredTickets; // Добавьте это поле
+    @Getter
+    private FilteredList<Ticket> filteredTickets;
 
 
     private Client client = ClientSingleton.getClient();
@@ -159,6 +168,8 @@ public class MainViewController implements Initializable {
             Platform.runLater(this::updateUILocalization);
         });
 
+        updateUILocalization();
+
 
         canvas.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -185,11 +196,50 @@ public class MainViewController implements Initializable {
 //            try {
 //                while (true) {
 //                    synchronizeCollection();
-//                    Thread.sleep(3000);
+//                    Thread.sleep(5000);
 //                }
 //            } catch (InterruptedException interruptedException) {
 //            }
 //        }).start();
+    }
+
+    /**
+     * Открывает диалоговое окно с расширенными фильтрами
+     */
+    @FXML
+    public void gotoFilters() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/gui/FilterDialog.fxml"));
+            AnchorPane page = (AnchorPane) loader.load();
+
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle(AppLocale.getString("FilterTitle", "Расширенная фильтрация"));
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(stage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+            dialogStage.setResizable(true);
+
+            FilterDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setMainViewController(this);
+
+            System.out.println("Opening filter dialog at: " + ZonedDateTime.now());
+            System.out.println("Current user: " + AuthManager.getCurrentUser().login());
+
+            dialogStage.showAndWait();
+
+            redrawCanvas();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            DialogHandler.errorAlert(
+                    AppLocale.getString("ErrorTitle", "Ошибка"),
+                    AppLocale.getString("FilterDialogError", "Ошибка при открытии диалога фильтрации"),
+                    e.getMessage()
+            );
+        }
     }
 
     private void initializeLocalization() {
@@ -215,9 +265,8 @@ public class MainViewController implements Initializable {
         serverInfoButton.setText(AppLocale.getString("ServerInfo"));
         logoutButton.setText(AppLocale.getString("Logout"));
 
-        // Обновляем метки
         currentUser.setText(AppLocale.getString("CurrentUser"));
-        nameFilter.setText(AppLocale.getString("NameFilterLabel"));
+//        nameFilter.setText(AppLocale.getString("NameFilterLabel"));
 
         ru.setText(AppLocale.getString("LangRu"));
         bg.setText(AppLocale.getString("LangBg"));
@@ -231,8 +280,9 @@ public class MainViewController implements Initializable {
         clearMyItems.setText(AppLocale.getString("ClearMyItems"));
         removeHead.setText(AppLocale.getString("RemoveHead"));
 
-        // Обновляем подсказку для поля ввода
-        startsWithInput.setPromptText(AppLocale.getString("NameFilterPrompt"));
+//        startsWithInput.setPromptText(AppLocale.getString("NameFilterPrompt"));
+
+        updateTableData(ticketsObserveCollection);
 
     }
 
@@ -291,9 +341,8 @@ public class MainViewController implements Initializable {
 
         Platform.runLater(() -> {
             GraphicsContext gc = canvas.getGraphicsContext2D();
-            drawGrid(gc, canvas.getWidth(), canvas.getHeight(), 100);
 
-            if (filteredTickets.isEmpty()) return;
+//            if (filteredTickets.isEmpty()) return;
 
             canvasCoordsMap.clear();
             Map<RectCoords, Ticket> newRects = new HashMap<>();
@@ -352,6 +401,8 @@ public class MainViewController implements Initializable {
         gc.setFill(Color.DARKGREY);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
+        drawGrid(gc, canvas.getWidth(), canvas.getHeight(), 100);
+
         for (Map.Entry<RectCoords, Ticket> entry : canvasCoordsMap.entrySet()) {
             RectCoords coords = entry.getKey();
             Ticket ticket = entry.getValue();
@@ -397,8 +448,6 @@ public class MainViewController implements Initializable {
                 ticketsObserveCollection.clear();
                 ticketsObserveCollection.addAll(newCollection);
 
-                filterStartsByNameFilter();
-
                 tableView.refresh();
                 redrawCanvas();
                 statusBarNotify("OK", AppLocale.getString("RefreshSuccess", newCollection.size()));
@@ -437,7 +486,9 @@ public class MainViewController implements Initializable {
                     ZonedDateTime date = cellData.getValue().getCreationDate();
                     if (date != null) {
                         return new SimpleStringProperty(date.format(
-                                DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                                DateTimeFormatter
+                                        .ofLocalizedDate(FormatStyle.LONG)
+                                        .withLocale(AppLocale.getCurrentLocale())
                         ));
                     }
                     return new SimpleStringProperty("");
@@ -454,9 +505,10 @@ public class MainViewController implements Initializable {
                 )
         );
 
-//        tableView.setItems(ticketsObserveCollection);
-        filteredTickets = new FilteredList<>(ticketsObserveCollection, p -> true);
-        tableView.setItems(filteredTickets);
+        filteredTickets = new FilteredList<>(ticketsObserveCollection, TableFilterManager.createPredicate());
+        SortedList<Ticket> sortedTickets = new SortedList<>(filteredTickets);
+        sortedTickets.comparatorProperty().bind(tableView.comparatorProperty());
+        tableView.setItems(sortedTickets);
 
         tableView.setRowFactory(tableView -> {
             TableRow<Ticket> row = new TableRow<Ticket>() {
@@ -699,21 +751,6 @@ public class MainViewController implements Initializable {
     @FXML
     public void addElement() {
         editCallback.accept(null);
-    }
-
-    @FXML
-    public void filterStartsByNameFilter() {
-        String filterText = startsWithInput.getText();
-        this.filterStartsWith = filterText;
-
-        if (filterText == null || filterText.isEmpty()) {
-            filteredTickets.setPredicate(ticket -> true);
-        } else {
-            filteredTickets.setPredicate(ticket ->
-                    ticket.getName().toLowerCase().startsWith(filterText.toLowerCase())
-            );
-        }
-        redrawCanvas();
     }
 
     @FXML

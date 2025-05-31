@@ -29,6 +29,13 @@ public class Main {
             consoleOutput.printError(validationError.getMessage());
         }
 
+        if (args.length != 2) throw new RuntimeException("Программа принимает 2 аргумента: <host> <port>");
+        try {
+            int port = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Порт должен быть числом <= 65535");
+        }
+
         ArrayList<ClientCommand> commands = new ArrayList<>(List.of(
                 new ExitCommand(),
                 new LoginCommand(consoleInput, consoleOutput),
