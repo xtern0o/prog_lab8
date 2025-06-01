@@ -4,10 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableArray;
-import javafx.collections.ObservableArrayBase;
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.EventHandler;
@@ -168,6 +165,13 @@ public class MainViewController implements Initializable {
             Platform.runLater(this::updateUILocalization);
         });
 
+        filteredTickets.addListener(new ListChangeListener<Ticket>() {
+            @Override
+            public void onChanged(Change<? extends Ticket> c) {
+                redrawCanvas();
+            }
+        });
+
         updateUILocalization();
 
 
@@ -186,21 +190,12 @@ public class MainViewController implements Initializable {
             }
         });
 
-//        client.addCollectionUpdateListener((newCollection) -> {
-//            Platform.runLater(() -> {
-//                updateTableData(newCollection);
-//            });
-//        });
+        client.addCollectionUpdateListener((newCollection) -> {
+            Platform.runLater(() -> {
+                updateTableData(newCollection);
+            });
+        });
 
-//        new Thread(() -> {
-//            try {
-//                while (true) {
-//                    synchronizeCollection();
-//                    Thread.sleep(5000);
-//                }
-//            } catch (InterruptedException interruptedException) {
-//            }
-//        }).start();
     }
 
     /**

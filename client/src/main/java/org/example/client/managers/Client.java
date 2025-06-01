@@ -17,11 +17,14 @@ import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * Класс клиента, отвечающий за общение с сервером
+ * Многопоточный клиент, где чтение происходит в отдельном потоке
  */
 public class Client implements Closeable {
     @Getter private final int port;
@@ -35,6 +38,11 @@ public class Client implements Closeable {
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
     private int currentReconnectionAttempt;
+
+    private final BlockingQueue<Response> responseQueue = new LinkedBlockingQueue<>();
+
+    private volatile boolean running = false;
+    private Thread readerThread;
 
     /**
      * Список слушателей которых надо уведомлять об изменении коллекции
@@ -77,7 +85,7 @@ public class Client implements Closeable {
     }
 
     /**
-     * Метод для соединения с сервером, использует обычные сокеты вместо каналов
+     * Метод для соединения с сервером
      * @return true если подключение успешно, false в противном случае
      */
     public boolean connectToServer() {
@@ -88,6 +96,7 @@ public class Client implements Closeable {
 
             socketChannel = SocketChannel.open();
             socketChannel.connect(new InetSocketAddress(host, port));
+            socketChannel.configureBlocking(true);
             socketChannel.socket().setSoTimeout(TIMEOUT_MS);
 
             outputStream = new ObjectOutputStream(socketChannel.socket().getOutputStream());
@@ -95,13 +104,17 @@ public class Client implements Closeable {
 
             inputStream = new ObjectInputStream(socketChannel.socket().getInputStream());
 
+            running = true;
+            readerThread = new Thread(this::readerLoop, "Client-Reader-Thread");
+            readerThread.setDaemon(true);
+            readerThread.start();
+
             consoleOutput.println("Подключение к серверу успешно установлено: " + host + ":" + port);
             currentReconnectionAttempt = 0;
-
             return true;
 
         } catch (SocketTimeoutException e) {
-            consoleOutput.printError("Время ожидания подключения - В С Ё: " + e.getMessage());
+            consoleOutput.printError("Время ожидания подключения истекло: " + e.getMessage());
             return handleConnectionFailure();
 
         } catch (IOException e) {
@@ -113,7 +126,7 @@ public class Client implements Closeable {
             return false;
 
         } catch (Exception e) {
-            consoleOutput.printError("Ватафак это че: " + e.getMessage());
+            consoleOutput.printError("Неожиданная ошибка при подключении: " + e.getMessage());
             e.printStackTrace();
             return handleConnectionFailure();
         }
@@ -143,15 +156,62 @@ public class Client implements Closeable {
             if (exitIfUnsuccessfulConnection) {
                 consoleOutput.println("Не удалось подключиться к серверу после " +
                         maxReconnectionAttempts + " попыток.");
-                if (exitIfUnsuccessfulConnection) {
-                    consoleOutput.println("Завершение работы");
-                    System.exit(-1);
-                }
+                consoleOutput.println("Завершение работы");
+                System.exit(-1);
             }
 
             currentReconnectionAttempt = 0;
-            consoleOutput.printError("Анлак не получилось подключиться к серверу после " + maxReconnectionAttempts + " попыток");
+            consoleOutput.printError("Не удалось подключиться к серверу после " + maxReconnectionAttempts + " попыток");
             return false;
+        }
+    }
+
+    /**
+     * Цикл чтения в отдельном потоке
+     */
+    private void readerLoop() {
+        consoleOutput.println("Поток чтения запущен");
+        try {
+            while (running && inputStream != null) {
+                try {
+                    Object response = inputStream.readObject();
+
+                    if (response instanceof Response respObj) {
+                        consoleOutput.println("Получен ответ: " + respObj.getResponseStatus());
+
+
+                        if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
+                            handleCollectionUpdate(respObj);
+                        } else {
+                            responseQueue.offer(respObj);
+                        }
+                    } else {
+                        consoleOutput.printError("Неверный тип ответа: " +
+                                (response != null ? response.getClass().getName() : "null"));
+                    }
+                } catch (ClassNotFoundException e) {
+                    consoleOutput.printError("Ошибка десериализации: " + e.getMessage());
+                } catch (IOException e) {
+                    if (running) {
+                        consoleOutput.printError("Ошибка чтения из сокета: " + e.getMessage());
+
+                        if (ensureConnected()) {
+                            consoleOutput.println("Переподключение успешно");
+                            continue;
+                        } else {
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            if (running) {
+                consoleOutput.printError("Непредвиденная ошибка в потоке чтения: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } finally {
+            consoleOutput.println("Поток чтения завершен");
         }
     }
 
@@ -161,14 +221,14 @@ public class Client implements Closeable {
     private boolean ensureConnected() {
         if (isConnected()) return true;
 
-        consoleOutput.println("Соединение - В С Ё? Попытка переподключения...");
+        consoleOutput.println("Соединение потеряно. Попытка переподключения...");
         return connectToServer();
     }
 
     /**
-     * Отправка запроса на сервер
+     * Отправка запроса на сервер и ожидание ответа
      */
-    public Response send(RequestCommand requestCommand) {
+    public synchronized Response send(RequestCommand requestCommand) {
         if (requestCommand == null || requestCommand.isEmpty()) {
             return new Response(ResponseStatus.COMMAND_ERROR, "Пустой запрос");
         }
@@ -178,35 +238,28 @@ public class Client implements Closeable {
         }
 
         try {
-            consoleOutput.println("Запрос отправляется...");
+            responseQueue.clear();
 
-            outputStream.writeObject(requestCommand);
-            outputStream.flush();
+            consoleOutput.println("Отправка запроса...");
+            synchronized (outputStream) {
+                outputStream.reset();
+                outputStream.writeObject(requestCommand);
+                outputStream.flush();
+            }
             consoleOutput.println("Запрос отправлен");
 
-            Response finalResp = null;
+            Response response = responseQueue.poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
-            while (true) {
-                Object response = inputStream.readObject();
-
-                if (response instanceof Response) {
-                    consoleOutput.println("Ответ получен!!");
-                    Response respObj = (Response) response;
-                    if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
-                        handleCollectionUpdate(respObj);
-                    } else {
-                        finalResp = respObj;
-                        break;
-                    }
-                } else {
-                    consoleOutput.printError("Неверный тип ответа: " +
-                            (response != null ? response.getClass().getName() : "null"));
-                    return new Response(ResponseStatus.SERVER_ERROR, "Неверный формат ответа");
-                }
+            if (response == null) {
+                consoleOutput.printError("Таймаут ожидания ответа");
+                return new Response(ResponseStatus.SERVER_ERROR, "Превышено время ожидания ответа");
             }
 
-            return finalResp;
+            consoleOutput.println("Получен ответ на запрос");
 
+            Thread.sleep(100);
+
+            return response;
 
         } catch (IOException e) {
             consoleOutput.printError("Ошибка соединения с сервером: " + e.getMessage());
@@ -216,14 +269,14 @@ public class Client implements Closeable {
                 return send(requestCommand);
             }
 
-            return new Response(ResponseStatus.SERVER_ERROR, "Анлак не подключается чет: " + e.getMessage());
+            return new Response(ResponseStatus.SERVER_ERROR, "Ошибка соединения: " + e.getMessage());
 
-        } catch (ClassNotFoundException e) {
-            consoleOutput.printError("Ошибка десериализации: " + e.getMessage());
-            return new Response(ResponseStatus.SERVER_ERROR, "Ошибка десериализации ответа");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new Response(ResponseStatus.SERVER_ERROR, "Ожидание ответа было прервано");
 
         } catch (Exception e) {
-            consoleOutput.printError("чзх: " + e.getMessage());
+            consoleOutput.printError("Непредвиденная ошибка: " + e.getMessage());
             e.printStackTrace();
             return new Response(ResponseStatus.SERVER_ERROR, "Непредвиденная ошибка: " + e.getMessage());
         }
@@ -233,28 +286,37 @@ public class Client implements Closeable {
      * Закрывает текущее соединение и освобождает ресурсы
      */
     private void closeConnection() {
+        running = false;
+
+        if (readerThread != null) {
+            readerThread.interrupt();
+            try {
+                readerThread.join(1000);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+            readerThread = null;
+        }
+
         try {
             if (outputStream != null) {
                 try {
                     outputStream.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException ignored) {}
                 outputStream = null;
             }
 
             if (inputStream != null) {
                 try {
                     inputStream.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException ignored) {}
                 inputStream = null;
             }
 
             if (socketChannel != null) {
                 try {
                     socketChannel.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException ignored) {}
                 socketChannel = null;
             }
 
@@ -278,15 +340,19 @@ public class Client implements Closeable {
     @Override
     public void close() {
         closeConnection();
-        consoleOutput.println("Клиент - В С Ё");
+        consoleOutput.println("Клиент закрыт");
     }
 
+    /**
+     * Обработка обновления коллекции
+     */
     private void handleCollectionUpdate(Response response) {
+        consoleOutput.println("Получено обновление коллекции");
         for (Consumer<Collection<Ticket>> listener : collectionUpdateListeners) {
             try {
                 listener.accept(response.getCollection());
             } catch (Exception e) {
-                consoleOutput.printError("Ошибка отправки обновления слушателю");
+                consoleOutput.printError("Ошибка отправки обновления слушателю: " + e.getMessage());
             }
         }
     }
