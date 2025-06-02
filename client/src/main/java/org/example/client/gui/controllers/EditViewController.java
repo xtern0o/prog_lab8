@@ -421,4 +421,5 @@ public class EditViewController implements Initializable {
         validateField(yField, isYValid);
         updateSmiley();
     }
+
 }

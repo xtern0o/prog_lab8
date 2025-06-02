@@ -18,7 +18,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="696.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.client.gui.controllers.EditViewController">
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="485.0" BorderPane.alignment="CENTER">

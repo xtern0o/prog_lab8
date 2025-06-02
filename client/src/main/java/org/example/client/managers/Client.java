@@ -195,6 +195,17 @@ public class Client implements Closeable {
                     if (running) {
                         consoleOutput.printError("Ошибка чтения из сокета: " + e.getMessage());
 
+                        // Костыль с большой буквы для обработки отключения сервера
+                        if (e.getMessage() == null) {
+                            if (connectToServer()) {
+                                consoleOutput.println("Переподключение после ошибки успешно");
+                                continue;
+                            } else {
+                                consoleOutput.printError("Не удалось подключиться");
+                                continue;
+                            }
+                        }
+
                         if (ensureConnected()) {
                             consoleOutput.println("Переподключение успешно");
                             continue;

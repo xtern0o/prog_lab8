@@ -103,7 +103,7 @@ public class MainViewController implements Initializable {
     @FXML private TableColumn<Ticket, Long> person_heightColumn;
     @FXML private TableColumn<Ticket, Country> person_nationalityColumn;
     @FXML private TableColumn<Ticket, String> owner_loginColumn;
-    @FXML private TextField startsWithInput;
+    @FXML private Button filterButton;
 
     @FXML private Canvas canvas;
 
@@ -151,10 +151,6 @@ public class MainViewController implements Initializable {
 
         bgImage = new Image(Objects.requireNonNull(getClass().getResource("/gui/image/world.jpeg")).toExternalForm());
 
-        System.out.println(bgImage.isError());
-        System.out.println(bgImage.getUrl());
-        System.out.println(bgImage.getException().toString());
-
         initializeLocalization();
 
         initTableColumns();
@@ -191,9 +187,7 @@ public class MainViewController implements Initializable {
         });
 
         client.addCollectionUpdateListener((newCollection) -> {
-            Platform.runLater(() -> {
-                updateTableData(newCollection);
-            });
+            Platform.runLater(this::synchronizeCollection);
         });
 
     }
@@ -219,9 +213,6 @@ public class MainViewController implements Initializable {
             FilterDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
             controller.setMainViewController(this);
-
-            System.out.println("Opening filter dialog at: " + ZonedDateTime.now());
-            System.out.println("Current user: " + AuthManager.getCurrentUser().login());
 
             dialogStage.showAndWait();
 
@@ -261,7 +252,6 @@ public class MainViewController implements Initializable {
         logoutButton.setText(AppLocale.getString("Logout"));
 
         currentUser.setText(AppLocale.getString("CurrentUser"));
-//        nameFilter.setText(AppLocale.getString("NameFilterLabel"));
 
         ru.setText(AppLocale.getString("LangRu"));
         bg.setText(AppLocale.getString("LangBg"));
@@ -275,9 +265,11 @@ public class MainViewController implements Initializable {
         clearMyItems.setText(AppLocale.getString("ClearMyItems"));
         removeHead.setText(AppLocale.getString("RemoveHead"));
 
-//        startsWithInput.setPromptText(AppLocale.getString("NameFilterPrompt"));
+        filterButton.setText(AppLocale.getString("FilterDialogTitle"));
 
-        updateTableData(ticketsObserveCollection);
+//        updateTableData(ticketsObserveCollection);
+
+        tableView.refresh();
 
     }
 

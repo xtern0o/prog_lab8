@@ -24,7 +24,7 @@
    <children>
       <VBox layoutX="10.0" layoutY="10.0" prefHeight="600.0" prefWidth="700.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label text="Настройка фильтров">
+            <Label fx:id="titleLabel" text="Настройка фильтров">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -33,302 +33,302 @@
                </VBox.margin>
             </Label>
             <TabPane prefHeight="500.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-              <tabs>
-                <Tab text="Текстовые поля">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                         <children>
-                            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                              <content>
-                                <AnchorPane>
-                                     <children>
-                                        <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                           <padding>
-                                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                           </padding>
-                                           <children>
-                                              <TitledPane animated="false" text="Название билета">
-                                                 <content>
-                                                    <GridPane>
-                                                      <columnConstraints>
-                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                      </columnConstraints>
-                                                      <rowConstraints>
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      </rowConstraints>
-                                                       <children>
-                                                          <Label text="Начинается с:" />
-                                                          <TextField fx:id="nameStartsWith" promptText="Введите начало названия" GridPane.columnIndex="1" />
-                                                          <CheckBox fx:id="nameCaseSensitive" mnemonicParsing="false" text="Учитывать регистр" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Логин владельца">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="Точное совпадение:" />
-                                                          <TextField fx:id="ownerLoginEquals" promptText="Введите логин владельца" GridPane.columnIndex="1" />
-                                                          <CheckBox fx:id="showOnlyMine" mnemonicParsing="false" onAction="#showMineAction" text="Показывать только мои билеты" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                           </children>
-                                        </VBox>
-                                     </children>
-                                  </AnchorPane>
-                              </content>
-                            </ScrollPane>
-                         </children>
-                      </AnchorPane>
-                  </content>
-                </Tab>
-                <Tab text="Числовые поля">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                         <children>
-                            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                               <content>
-                                  <AnchorPane>
-                                     <children>
-                                        <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                           <padding>
-                                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                           </padding>
-                                           <children>
-                                              <TitledPane animated="false" text="ID">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="Равно:" />
-                                                          <TextField fx:id="idEquals" promptText="Введите ID" GridPane.columnIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Цена (price)">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <TextField fx:id="priceFrom" promptText="Минимальная цена" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <TextField fx:id="priceTo" promptText="Максимальная цена" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Скидка (discount)">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <TextField fx:id="discountFrom" promptText="Минимальная скидка" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <TextField fx:id="discountTo" promptText="Максимальная скидка" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Координата X">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <TextField fx:id="coordXFrom" promptText="Минимальное значение X" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <TextField fx:id="coordXTo" promptText="Максимальное значение X" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Координата Y">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <TextField fx:id="coordYFrom" promptText="Минимальное значение Y" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <TextField fx:id="coordYTo" promptText="Максимальное значение Y" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Рост человека (height)">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <TextField fx:id="heightFrom" promptText="Минимальный рост" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <TextField fx:id="heightTo" promptText="Максимальный рост" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                           </children>
-                                        </VBox>
-                                     </children>
-                                  </AnchorPane>
-                               </content>
-                            </ScrollPane>
-                         </children></AnchorPane>
-                  </content>
-                </Tab>
-                <Tab text="Дата и перечисления">
-                  <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                         <children>
-                            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                               <content>
-                                  <AnchorPane>
-                                     <children>
-                                        <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                           <padding>
-                                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                           </padding>
-                                           <children>
-                                              <TitledPane animated="false" text="Дата создания">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="От:" />
-                                                          <DatePicker fx:id="creationDateFrom" prefWidth="400.0" promptText="Начальная дата" GridPane.columnIndex="1" />
-                                                          <Label text="До:" GridPane.rowIndex="1" />
-                                                          <DatePicker fx:id="creationDateTo" prefWidth="400.0" promptText="Конечная дата" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Тип билета">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="Выбрать тип:" />
-                                                          <ComboBox fx:id="ticketTypeComboBox" prefWidth="400.0" promptText="Выберите тип билета" GridPane.columnIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Возвратный билет">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="Возвратный:" />
-                                                          <ComboBox fx:id="refundableComboBox" prefWidth="400.0" promptText="Выберите статус возврата" GridPane.columnIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                              <TitledPane animated="false" text="Национальность">
-                                                 <content>
-                                                    <GridPane>
-                                                       <columnConstraints>
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
-                                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
-                                                       </columnConstraints>
-                                                       <rowConstraints>
-                                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                       </rowConstraints>
-                                                       <children>
-                                                          <Label text="Национальность:" />
-                                                          <ComboBox fx:id="nationalityComboBox" prefWidth="400.0" promptText="Выберите национальность" GridPane.columnIndex="1" />
-                                                       </children>
-                                                    </GridPane>
-                                                 </content>
-                                              </TitledPane>
-                                           </children>
-                                        </VBox>
-                                     </children>
-                                  </AnchorPane>
-                               </content>
-                            </ScrollPane>
-                         </children></AnchorPane>
-                  </content>
-                </Tab>
-              </tabs>
+               <tabs>
+                  <Tab fx:id="textFieldsTab" text="Текстовые поля">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <content>
+                                    <AnchorPane>
+                                       <children>
+                                          <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                             <children>
+                                                <TitledPane fx:id="ticketNamePane" animated="false" text="Название билета">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="startsWithLabel" text="Начинается с:" />
+                                                            <TextField fx:id="nameStartsWith" promptText="Введите начало названия" GridPane.columnIndex="1" />
+                                                            <CheckBox fx:id="nameCaseSensitive" mnemonicParsing="false" text="Учитывать регистр" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="ownerLoginPane" animated="false" text="Логин владельца">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="exactMatchLabel" text="Точное совпадение:" />
+                                                            <TextField fx:id="ownerLoginEquals" promptText="Введите логин владельца" GridPane.columnIndex="1" />
+                                                            <CheckBox fx:id="showOnlyMine" mnemonicParsing="false" onAction="#showMineAction" text="Показывать только мои билеты" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </ScrollPane>
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab fx:id="numericFieldsTab" text="Числовые поля">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <content>
+                                    <AnchorPane>
+                                       <children>
+                                          <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                             <children>
+                                                <TitledPane fx:id="idPane" animated="false" text="ID">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="equalsLabel" text="Равно:" />
+                                                            <TextField fx:id="idEquals" promptText="Введите ID" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="pricePane" animated="false" text="Цена (price)">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="priceFromLabel" text="От:" />
+                                                            <TextField fx:id="priceFrom" promptText="Минимальная цена" GridPane.columnIndex="1" />
+                                                            <Label fx:id="priceToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="priceTo" promptText="Максимальная цена" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="discountPane" animated="false" text="Скидка (discount)">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="discountFromLabel" text="От:" />
+                                                            <TextField fx:id="discountFrom" promptText="Минимальная скидка" GridPane.columnIndex="1" />
+                                                            <Label fx:id="discountToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="discountTo" promptText="Максимальная скидка" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="coordXPane" animated="false" text="Координата X">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="coordXFromLabel" text="От:" />
+                                                            <TextField fx:id="coordXFrom" promptText="Минимальное значение X" GridPane.columnIndex="1" />
+                                                            <Label fx:id="coordXToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="coordXTo" promptText="Максимальное значение X" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="coordYPane" animated="false" text="Координата Y">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="coordYFromLabel" text="От:" />
+                                                            <TextField fx:id="coordYFrom" promptText="Минимальное значение Y" GridPane.columnIndex="1" />
+                                                            <Label fx:id="coordYToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="coordYTo" promptText="Максимальное значение Y" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="heightPane" animated="false" text="Рост человека (height)">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="heightFromLabel" text="От:" />
+                                                            <TextField fx:id="heightFrom" promptText="Минимальный рост" GridPane.columnIndex="1" />
+                                                            <Label fx:id="heightToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <TextField fx:id="heightTo" promptText="Максимальный рост" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </ScrollPane>
+                           </children></AnchorPane>
+                     </content>
+                  </Tab>
+                  <Tab fx:id="dateAndEnumsTab" text="Дата и перечисления">
+                     <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <content>
+                                    <AnchorPane>
+                                       <children>
+                                          <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </padding>
+                                             <children>
+                                                <TitledPane fx:id="creationDatePane" animated="false" text="Дата создания">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="creationDateFromLabel" text="От:" />
+                                                            <DatePicker fx:id="creationDateFrom" prefWidth="400.0" promptText="Начальная дата" GridPane.columnIndex="1" />
+                                                            <Label fx:id="creationDateToLabel" text="До:" GridPane.rowIndex="1" />
+                                                            <DatePicker fx:id="creationDateTo" prefWidth="400.0" promptText="Конечная дата" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="ticketTypePane" animated="false" text="Тип билета">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="selectTypeLabel" text="Выбрать тип:" />
+                                                            <ComboBox fx:id="ticketTypeComboBox" prefWidth="400.0" promptText="Выберите тип билета" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="refundablePane" animated="false" text="Возвратный билет">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="refundableLabel" text="Возвратный:" />
+                                                            <ComboBox fx:id="refundableComboBox" prefWidth="400.0" promptText="Выберите статус возврата" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                                <TitledPane fx:id="nationalityPane" animated="false" text="Национальность">
+                                                   <content>
+                                                      <GridPane>
+                                                         <columnConstraints>
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="400.0" />
+                                                         </columnConstraints>
+                                                         <rowConstraints>
+                                                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                         </rowConstraints>
+                                                         <children>
+                                                            <Label fx:id="nationalityLabel" text="Национальность:" />
+                                                            <ComboBox fx:id="nationalityComboBox" prefWidth="400.0" promptText="Выберите национальность" GridPane.columnIndex="1" />
+                                                         </children>
+                                                      </GridPane>
+                                                   </content>
+                                                </TitledPane>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </ScrollPane>
+                           </children></AnchorPane>
+                     </content>
+                  </Tab>
+               </tabs>
             </TabPane>
             <Separator prefWidth="200.0" />
             <HBox alignment="CENTER_RIGHT" spacing="10.0">

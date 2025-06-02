@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.client.gui.filters.TableFilterManager;
 import org.example.client.managers.AuthManager;
+import org.example.client.utils.AppLocale;
 import org.example.client.utils.DialogHandler;
 import org.example.common.entity.Country;
 import org.example.common.entity.Ticket;
@@ -19,6 +20,7 @@ import org.example.common.entity.TicketType;
 import java.net.URL;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class FilterDialogController implements Initializable {
@@ -50,6 +52,44 @@ public class FilterDialogController implements Initializable {
     @FXML private Button applyButton;
     @FXML private Button cancelButton;
 
+    // Элементы с текстом, которые нужно локализовать
+    @FXML private Label titleLabel;
+    @FXML private Tab textFieldsTab;
+    @FXML private Tab numericFieldsTab;
+    @FXML private Tab dateAndEnumsTab;
+
+    @FXML private TitledPane ticketNamePane;
+    @FXML private TitledPane ownerLoginPane;
+    @FXML private TitledPane idPane;
+    @FXML private TitledPane pricePane;
+    @FXML private TitledPane discountPane;
+    @FXML private TitledPane coordXPane;
+    @FXML private TitledPane coordYPane;
+    @FXML private TitledPane heightPane;
+    @FXML private TitledPane creationDatePane;
+    @FXML private TitledPane ticketTypePane;
+    @FXML private TitledPane refundablePane;
+    @FXML private TitledPane nationalityPane;
+
+    @FXML private Label startsWithLabel;
+    @FXML private Label exactMatchLabel;
+    @FXML private Label equalsLabel;
+    @FXML private Label priceFromLabel;
+    @FXML private Label priceToLabel;
+    @FXML private Label discountFromLabel;
+    @FXML private Label discountToLabel;
+    @FXML private Label coordXFromLabel;
+    @FXML private Label coordXToLabel;
+    @FXML private Label coordYFromLabel;
+    @FXML private Label coordYToLabel;
+    @FXML private Label heightFromLabel;
+    @FXML private Label heightToLabel;
+    @FXML private Label creationDateFromLabel;
+    @FXML private Label creationDateToLabel;
+    @FXML private Label selectTypeLabel;
+    @FXML private Label refundableLabel;
+    @FXML private Label nationalityLabel;
+
     @Setter
     private MainViewController mainViewController;
 
@@ -58,6 +98,9 @@ public class FilterDialogController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        initializeLocalization();
+
         ticketTypeComboBox.setItems(FXCollections.observableArrayList(TicketType.values()));
         ticketTypeComboBox.getItems().add(0, null);
 
@@ -109,6 +152,78 @@ public class FilterDialogController implements Initializable {
 
     }
 
+    private void initializeLocalization() {
+        Locale currentLocale = AppLocale.getCurrentLocale();
+
+
+        titleLabel.setText(AppLocale.getString("FilterDialogTitle"));
+
+        textFieldsTab.setText(AppLocale.getString("TextFieldsTab"));
+        numericFieldsTab.setText(AppLocale.getString("NumericFieldsTab"));
+        dateAndEnumsTab.setText(AppLocale.getString("DateAndEnumsTab"));
+
+        ticketNamePane.setText(AppLocale.getString("TicketNameSection"));
+        ownerLoginPane.setText(AppLocale.getString("OwnerLoginSection"));
+        idPane.setText(AppLocale.getString("IdSection"));
+        pricePane.setText(AppLocale.getString("PriceSection"));
+        discountPane.setText(AppLocale.getString("DiscountSection"));
+        coordXPane.setText(AppLocale.getString("CoordXSection"));
+        coordYPane.setText(AppLocale.getString("CoordYSection"));
+        heightPane.setText(AppLocale.getString("HeightSection"));
+        creationDatePane.setText(AppLocale.getString("CreationDateSection"));
+        ticketTypePane.setText(AppLocale.getString("TicketTypeSection"));
+        refundablePane.setText(AppLocale.getString("RefundableSection"));
+        nationalityPane.setText(AppLocale.getString("NationalitySection"));
+
+        startsWithLabel.setText(AppLocale.getString("StartsWith"));
+        exactMatchLabel.setText(AppLocale.getString("ExactMatch"));
+        equalsLabel.setText(AppLocale.getString("Equals"));
+
+        priceFromLabel.setText(AppLocale.getString("From"));
+        priceToLabel.setText(AppLocale.getString("To"));
+        discountFromLabel.setText(AppLocale.getString("From"));
+        discountToLabel.setText(AppLocale.getString("To"));
+        coordXFromLabel.setText(AppLocale.getString("From"));
+        coordXToLabel.setText(AppLocale.getString("To"));
+        coordYFromLabel.setText(AppLocale.getString("From"));
+        coordYToLabel.setText(AppLocale.getString("To"));
+        heightFromLabel.setText(AppLocale.getString("From"));
+        heightToLabel.setText(AppLocale.getString("To"));
+        creationDateFromLabel.setText(AppLocale.getString("From"));
+        creationDateToLabel.setText(AppLocale.getString("To"));
+
+        selectTypeLabel.setText(AppLocale.getString("SelectType"));
+        refundableLabel.setText(AppLocale.getString("Refundable"));
+        nationalityLabel.setText(AppLocale.getString("Nationality"));
+
+        nameCaseSensitive.setText(AppLocale.getString("CaseSensitive"));
+        showOnlyMine.setText(AppLocale.getString("ShowOnlyMine"));
+
+        nameStartsWith.setPromptText(AppLocale.getString("EnterNameStart"));
+        ownerLoginEquals.setPromptText(AppLocale.getString("EnterOwnerLogin"));
+        idEquals.setPromptText(AppLocale.getString("EnterId"));
+        priceFrom.setPromptText(AppLocale.getString("MinPrice"));
+        priceTo.setPromptText(AppLocale.getString("MaxPrice"));
+        discountFrom.setPromptText(AppLocale.getString("MinDiscount"));
+        discountTo.setPromptText(AppLocale.getString("MaxDiscount"));
+        coordXFrom.setPromptText(AppLocale.getString("MinX"));
+        coordXTo.setPromptText(AppLocale.getString("MaxX"));
+        coordYFrom.setPromptText(AppLocale.getString("MinY"));
+        coordYTo.setPromptText(AppLocale.getString("MaxY"));
+        heightFrom.setPromptText(AppLocale.getString("MinHeight"));
+        heightTo.setPromptText(AppLocale.getString("MaxHeight"));
+
+        creationDateFrom.setPromptText(AppLocale.getString("StartDate"));
+        creationDateTo.setPromptText(AppLocale.getString("EndDate"));
+        ticketTypeComboBox.setPromptText(AppLocale.getString("SelectTicketType"));
+        refundableComboBox.setPromptText(AppLocale.getString("SelectRefundStatus"));
+        nationalityComboBox.setPromptText(AppLocale.getString("SelectNationality"));
+
+        resetButton.setText(AppLocale.getString("ResetButton"));
+        applyButton.setText(AppLocale.getString("ApplyButton"));
+        cancelButton.setText(AppLocale.getString("CancelButton"));
+    }
+
     private void setupTextFieldValidation() {
         setupNumericValidation(idEquals, true);
         setupNumericValidation(priceFrom, false);
@@ -151,7 +266,7 @@ public class FilterDialogController implements Initializable {
 
             DialogHandler.successAlert("Установка фильтров", "Фильтр установлен", "Фильтры были успешно применены");
 
-//            dialogStage.close();
+            dialogStage.close();
         }
     }
 
@@ -268,6 +383,7 @@ public class FilterDialogController implements Initializable {
             return;
         }
         ownerLoginEquals.setDisable(false);
+        ownerLoginEquals.clear();
     }
 
     @FXML
