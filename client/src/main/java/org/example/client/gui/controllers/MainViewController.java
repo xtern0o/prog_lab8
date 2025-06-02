@@ -186,6 +186,19 @@ public class MainViewController implements Initializable {
             }
         });
 
+        canvas.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                double x = event.getX();
+                double y = event.getY();
+                for (RectCoords coords : canvasCoordsMap.keySet()) {
+                    if (coords.isInside(x, y)) {
+                        statusBarNotify("CHOSEN", "Выбран элемент с id=" + canvasCoordsMap.get(coords).getId());
+                    }
+                }
+            }
+        });
+
         client.addCollectionUpdateListener((newCollection) -> {
             Platform.runLater(this::synchronizeCollection);
         });

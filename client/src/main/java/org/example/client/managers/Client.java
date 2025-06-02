@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
@@ -179,7 +178,6 @@ public class Client implements Closeable {
                     if (response instanceof Response respObj) {
                         consoleOutput.println("Получен ответ: " + respObj.getResponseStatus());
 
-
                         if (respObj.getResponseStatus() == ResponseStatus.COLLECTION_UPDATE) {
                             handleCollectionUpdate(respObj);
                         } else {
@@ -191,6 +189,7 @@ public class Client implements Closeable {
                     }
                 } catch (ClassNotFoundException e) {
                     consoleOutput.printError("Ошибка десериализации: " + e.getMessage());
+                } catch (SocketTimeoutException ignored) {  // игнорю так как прослушиваем в фоне и нет смысла вообще от таймаута
                 } catch (IOException e) {
                     if (running) {
                         consoleOutput.printError("Ошибка чтения из сокета: " + e.getMessage());
@@ -312,6 +311,7 @@ public class Client implements Closeable {
         try {
             if (outputStream != null) {
                 try {
+                    outputStream.reset();
                     outputStream.close();
                 } catch (IOException ignored) {}
                 outputStream = null;
@@ -319,6 +319,7 @@ public class Client implements Closeable {
 
             if (inputStream != null) {
                 try {
+                    inputStream.reset();
                     inputStream.close();
                 } catch (IOException ignored) {}
                 inputStream = null;
