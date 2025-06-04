@@ -52,6 +52,20 @@ public class EditViewController implements Initializable {
     @FXML private Button saveButton;
     @FXML private ImageView smiley;
 
+    @FXML private Label editViewTitle;
+    @FXML private Label idLabel;
+    @FXML private Label nameLabel;
+    @FXML private Label coordXLabel;
+    @FXML private Label coordYLabel;
+    @FXML private Label priceLabel;
+    @FXML private Label discountLabel;
+    @FXML private Label refundableLabel;
+    @FXML private Label typeLabel;
+    @FXML private Label pHeightLabel;
+    @FXML private Label pNationLabel;
+    @FXML private Label ownerLabel;
+    @FXML private Label creationDateLabel;
+
     Client client = ClientSingleton.getClient();
 
     @Getter
@@ -154,6 +168,31 @@ public class EditViewController implements Initializable {
     private void setLocalization() {
         saveButton.setText(AppLocale.getString("Save"));
         cancelButton.setText(AppLocale.getString("Cancel"));
+
+        editViewTitle.setText(AppLocale.getString("EditViewTitle"));
+
+        idLabel.setText(AppLocale.getString("IdField"));
+        nameLabel.setText(AppLocale.getString("NameField"));
+        coordXLabel.setText(AppLocale.getString("CoordXField"));
+        coordYLabel.setText(AppLocale.getString("CoordYField"));
+        priceLabel.setText(AppLocale.getString("PriceField"));
+        discountLabel.setText(AppLocale.getString("DiscountField"));
+        refundableLabel.setText(AppLocale.getString("RefundableField"));
+        typeLabel.setText(AppLocale.getString("TypeField"));
+        pHeightLabel.setText(AppLocale.getString("PersonHeightField"));
+        pNationLabel.setText(AppLocale.getString("PersonNationalityField"));
+        ownerLabel.setText(AppLocale.getString("OwnerLoginField"));
+        creationDateLabel.setText(AppLocale.getString("CreationDateField"));
+
+        nameField.setPromptText(AppLocale.getString("NamePrompt"));
+        priceField.setPromptText(AppLocale.getString("PricePrompt"));
+        pHeightField.setPromptText(AppLocale.getString("HeightPrompt"));
+        xField.setPromptText(AppLocale.getString("CoordXPrompt"));
+        yField.setPromptText(AppLocale.getString("CoordYPrompt"));
+        typeCombo.setPromptText(AppLocale.getString("TypePrompt"));
+        pNationField.setPromptText(AppLocale.getString("NationalityPrompt"));
+
+        refundableField.setText(AppLocale.getString("RefundableCheck"));
     }
 
     @FXML
@@ -164,7 +203,7 @@ public class EditViewController implements Initializable {
     @FXML
     private void save() {
         if (!validateAllFields()) {
-            DialogHandler.errorAlert(AppLocale.getString("Error"), AppLocale.getString("ValidationError"), "Одно или несколько полей невалидны");
+            DialogHandler.errorAlert(AppLocale.getString("EditError"), AppLocale.getString("ValidationError"), AppLocale.getString("EditNotValid"));
             return;
         }
 
@@ -179,13 +218,13 @@ public class EditViewController implements Initializable {
                 Response response = client.send(requestCommand);
                 if (response.getResponseStatus().equals(ResponseStatus.OK)) {
                     Platform.runLater(() -> {
-                        DialogHandler.successAlert("Успех", "Обновление объекта", response.getMessage());
+                        DialogHandler.successAlert(AppLocale.getString("EditSuccess"), AppLocale.getString("EditCreateTitle"), AppLocale.getString("EditCreated"));
                         System.out.println(ticket);
                         mainCallback.run();
                     });
                 } else {
                     Platform.runLater(() -> {
-                        DialogHandler.errorAlert(AppLocale.getString("Success"), AppLocale.getString("ErrorWhileUpdate", response.getResponseStatus().toString()), response.getMessage());
+                        DialogHandler.successAlert(AppLocale.getString("EditSuccess"), AppLocale.getString("EditUpdateTitle"), AppLocale.getString("EditUpdated"));
                     });
                 }
             }

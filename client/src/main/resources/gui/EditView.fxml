@@ -51,7 +51,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="id" GridPane.rowIndex="9">
+            <Label fx:id="idLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="id" GridPane.rowIndex="9">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -67,7 +67,7 @@
                   <Font size="14.0" />
                </font>
             </TextField>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="name">
+            <Label fx:id="nameLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="name">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -75,7 +75,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="coord_x" GridPane.rowIndex="4">
+            <Label fx:id="coordXLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="coord_x" GridPane.rowIndex="4">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -83,7 +83,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="coord_y" GridPane.rowIndex="5">
+            <Label fx:id="coordYLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="coord_y" GridPane.rowIndex="5">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -91,7 +91,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="price" GridPane.rowIndex="1">
+            <Label fx:id="priceLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="price" GridPane.rowIndex="1">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -99,7 +99,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="discount" GridPane.rowIndex="2">
+            <Label fx:id="discountLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="discount" GridPane.rowIndex="2">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -107,7 +107,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="refundable" GridPane.rowIndex="6">
+            <Label fx:id="refundableLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="refundable" GridPane.rowIndex="6">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -115,7 +115,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="type" GridPane.rowIndex="7">
+            <Label fx:id="typeLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="type" GridPane.rowIndex="7">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -123,7 +123,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="person_height" GridPane.rowIndex="3">
+            <Label fx:id="pHeightLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="person_height" GridPane.rowIndex="3">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -131,7 +131,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="person_nationality" GridPane.rowIndex="8">
+            <Label fx:id="pNationLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="person_nationality" GridPane.rowIndex="8">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -139,7 +139,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="owner_login" GridPane.rowIndex="10">
+            <Label fx:id="ownerLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="owner_login" GridPane.rowIndex="10">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -147,7 +147,7 @@
                   <Font size="14.0" />
                </font>
             </Label>
-            <Label alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="creation_date" GridPane.rowIndex="11">
+            <Label fx:id="creationDateLabel" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="creation_date" GridPane.rowIndex="11">
                <padding>
                   <Insets left="10.0" right="10.0" />
                </padding>
@@ -254,7 +254,7 @@
                   <Insets top="10.0" />
                </VBox.margin>
             </ImageView>
-            <Label text="Объект Ticket">
+            <Label fx:id="editViewTitle" text="Объект Ticket">
                <padding>
                   <Insets bottom="10.0" top="10.0" />
                </padding>
